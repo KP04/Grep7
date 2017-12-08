@@ -65,7 +65,7 @@ public class Planner {
 		gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
 
- private boolean planning(Vector theGoalList,
+  boolean planning(Vector theGoalList,
                           Vector theCurrentState,
                           Hashtable theBinding){
   System.out.println("*** GOALS ***" + theGoalList);
