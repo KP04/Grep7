@@ -25,7 +25,7 @@ public class ColorAndForm {
 	private void initOperators() {
 		Planner.operators = new Vector();
 		Vector operators = Planner.operators;
-
+		
 		// OPERATOR 1
 		// / NAME
 		String name1 = new String("Place ?x on ?y");
@@ -33,6 +33,7 @@ public class ColorAndForm {
 		Vector ifList1 = new Vector();
 		ifList1.addElement(new String("clear ?y"));
 		ifList1.addElement(new String("holding ?x"));
+		ifList1.addElement(new String("?y is square"));
 		// / ADD-LIST
 		Vector addList1 = new Vector();
 		addList1.addElement(new String("?x on ?y"));
@@ -44,7 +45,29 @@ public class ColorAndForm {
 		deleteList1.addElement(new String("holding ?x"));
 		Operator operator1 = new Operator(name1, ifList1, addList1, deleteList1);
 		operators.addElement(operator1);
-
+		
+		
+		// 台形の上に三角形が乗るときの判定
+		String name5 = new String("Place ?x on ?y");
+		// IF
+		Vector ifList5 = new Vector();
+		ifList5.addElement(new String("clear ?y"));
+		ifList5.addElement(new String("holding ?x"));
+		//ifList5.addElement(new String("?x is triangle"));
+		ifList5.addElement(new String("?y is trapezoid"));
+		// ADD-LIST
+		Vector addList5 = new Vector();
+		addList5.addElement(new String("?x on ?y"));
+		addList5.addElement(new String("clear ?x"));
+		addList5.addElement(new String("handEmpty"));
+		// DELETE-LIST
+		Vector deleteList5 = new Vector();
+		deleteList5.addElement(new String("clear ?y"));
+		deleteList5.addElement(new String("holding ?x"));
+		Operator operator5 = new Operator(name5,ifList5,addList5,deleteList5);
+		operators.addElement(operator5);
+		
+		
 		// OPERATOR 2
 		// / NAME
 		String name2 = new String("remove ?x from on top ?y");
@@ -114,6 +137,14 @@ public class ColorAndForm {
 		initialState.addElement("clear A");
 		initialState.addElement("clear B");
 		initialState.addElement("clear C");
+		
+		initialState.addElement("A is triangle"); //triangle,trapezoid=台形,square
+		initialState.addElement("B is square");
+		initialState.addElement("C is square");
+
+		initialState.addElement("A is red"); //red,white,green
+		initialState.addElement("A is white");
+		initialState.addElement("A is green");
 
 		initialState.addElement("ontable A");
 		initialState.addElement("ontable B");
