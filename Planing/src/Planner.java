@@ -1,9 +1,11 @@
+import java.io.File;
 import java.util.*;
 
 public class Planner {
  Vector operators;
  Random rand;
  Vector plan;
+ PlannerGUI pgui;
 
  public static void main(String argv[]){
   (new Planner()).start();
@@ -11,6 +13,11 @@ public class Planner {
 
  Planner(){
   rand = new Random();
+ }
+ 
+ Planner(PlannerGUI pgui){
+	 rand = new Random();
+	 this.pgui = pgui;
  }
 
  public void start(){
@@ -24,10 +31,39 @@ public class Planner {
 
   System.out.println("***** This is a plan! *****");
    for(int i = 0 ; i < plan.size() ; i++){
-    Operator op = (Operator)plan.elementAt(i);	    
+	 Operator op = (Operator)plan.elementAt(i);
     System.out.println((op.instantiate(theBinding)).name);
    }
+   
+
   }
+ 
+	public void startWithGUI() {
+		initOperators();
+		Vector goalList = initGoalList(pgui);
+		Vector initialState = initInitialState(pgui);
+		System.out.println(initialState);
+		Hashtable theBinding = new Hashtable();
+		plan = new Vector();
+		planning(goalList, initialState, theBinding);
+		GraphViz gv = new GraphViz();
+		gv.addln(gv.start_graph());
+		Operator op1, op2;
+		String s1, s2;
+		for (int i = 0; i < plan.size(); i++) {
+			if (i != 0) {
+				op1 = (Operator) plan.elementAt(i - 1);
+				op2 = (Operator) plan.elementAt(i);
+				s1 = (op1.instantiate(theBinding)).name.replace(' ', '_') + "_"+ i;
+				s2 = (op2.instantiate(theBinding)).name.replace(' ', '_') + "_"+ (i + 1);
+				gv.addln(s1 + " -> " + s2 + ";");
+			}
+		}
+		String type = "png";
+		String repesentationType = "dot";
+		File out = new File("tmp/simple" + "." + type);
+		gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
+	}
 
  private boolean planning(Vector theGoalList,
                           Vector theCurrentState,
@@ -183,6 +219,15 @@ public class Planner {
   goalList.addElement("A on B");
   return goalList;
  }
+ 
+ private Vector initGoalList(PlannerGUI pgui){
+	 Vector goalList = new Vector();
+	 String[] gList = pgui.goalTextArea.getText().split("\n");
+	 for(int i=0; i<gList.length; i++){
+		 goalList.addElement(gList[i]);
+	 }
+	 return goalList;
+ }
     
  private Vector initInitialState(){
   Vector initialState = new Vector();
@@ -195,6 +240,15 @@ public class Planner {
   initialState.addElement("ontable C");
   initialState.addElement("handEmpty");
   return initialState;
+ }
+ 
+ private Vector initInitialState(PlannerGUI pgui){
+	 Vector initialState = new Vector();
+	 String[] iList = pgui.initialTextArea.getText().split("\n");
+	 for(int i=0; i<iList.length; i++){
+		 initialState.addElement(iList[i]);
+	 }
+	 return initialState;
  }
     
  private void initOperators(){
