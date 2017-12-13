@@ -91,6 +91,7 @@ public class Planner {
 			// サブゴールの先頭を取り出し
 			String aGoal = (String) theGoalList.elementAt(0);
 
+			// おそらく check point. ゴール状態を満たすまでに探索したオペレータのインデックスをtepPointから更新しつつ保持
 			int cPoint = 0;
 			while (cPoint < operators.size()) {
 				System.out.println("cPoint:"+cPoint);
@@ -112,16 +113,18 @@ public class Planner {
 				int tmpPoint = planningAGoal(aGoal, theCurrentState,
 						theBinding, cPoint);
 
+				// オペレータのインデックス+1 (そもそも現状にマッチングしてたら0)
 				System.out.println("tmpPoint: "+tmpPoint);
+
 				if (tmpPoint != -1) {
 					theGoalList.removeElementAt(0);
 					System.out.println(theCurrentState);
 					if (planning(theGoalList, theCurrentState, theBinding)) {
-						// System.out.println("Success !");
+						System.out.println("Success !");
 						return true;
 					} else {
 						cPoint = tmpPoint;
-						// System.out.println("Fail::"+cPoint);
+						//System.out.println("Fail::"+cPoint);
 						theGoalList.insertElementAt(aGoal, 0);
 
 						theBinding.clear();
@@ -160,6 +163,7 @@ public class Planner {
 		int size = theCurrentState.size();
 		for (int i = 0; i < size; i++) {
 			String aState = (String) theCurrentState.elementAt(i);
+			// 現状にマッチングする状態が来たら返す
 			if ((new Unifier()).unify(theGoal, aState, theBinding)) {
 				return 0;
 			}
@@ -167,23 +171,27 @@ public class Planner {
 
 		/* ***************** 乱数の個所 ****************************** */
 
-		int randInt = Math.abs(rand.nextInt()) % operators.size();
+		int randInt = 0;//Math.abs(rand.nextInt()) % operators.size();
 		/*
-		step += 1;
 		while(randInt == tempOpeNo.get(step % 2))
 		{
 			randInt = Math.abs(rand.nextInt()) % operators.size();
 		}
 		tempOpeNo.set(step % 2, randInt);
 		*/
+		//System.out.println("Before:\n" + operators);
 		Operator op = (Operator) operators.elementAt(randInt);
+		System.out.println(op);
 		operators.removeElementAt(randInt);
 		operators.addElement(op);
+		System.out.println("After:\n" + operators);
+		//System.out.println("Target:\n" + op);
 
 		/* *********************************************************** */
 
 		for (int i = cPoint; i < operators.size(); i++) {
 			Operator anOperator = rename((Operator) operators.elementAt(i));
+
 			// 現在のCurrent state, Binding, planをbackup
 			Hashtable orgBinding = new Hashtable();
 			for (Enumeration e = theBinding.keys(); e.hasMoreElements();) {
@@ -200,13 +208,18 @@ public class Planner {
 				orgPlan.addElement(plan.elementAt(j));
 			}
 
+			// 条件が満たされたとき、追加される状態を格納
 			Vector addList = (Vector) anOperator.getAddList();
+
 			for (int j = 0; j < addList.size(); j++) {
 				if ((new Unifier()).unify(theGoal,
 						(String) addList.elementAt(j), theBinding)) {
+					// 具体化し、あらたなゴールを生成
 					Operator newOperator = anOperator.instantiate(theBinding);
 					Vector newGoals = (Vector) newOperator.getIfList();
 					System.out.println(newOperator.name);
+
+					// 再帰呼び出し
 					if (planning(newGoals, theCurrentState, theBinding)) {
 						System.out.println(newOperator.name);
 						plan.addElement(newOperator);
@@ -239,6 +252,7 @@ public class Planner {
 
 	int uniqueNum = 0;
 
+	// 変数を区別したうえで、Operatorを生成
 	private Operator rename(Operator theOperator) {
 		Operator newOperator = theOperator.getRenamedOperator(uniqueNum);
 		uniqueNum = uniqueNum + 1;
@@ -405,6 +419,7 @@ class Operator {
 		return theState;
 	}
 
+	// 現状の選ばれたIFリストなどの内容をOperatorで返す
 	public Operator getRenamedOperator(int uniqueNum) {
 		Vector vars = new Vector();
 		// IfListの変数を集める
