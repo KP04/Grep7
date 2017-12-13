@@ -1,0 +1,84 @@
+Place ?x on ?y:
+IF      clear ?y
+        holding ?x
+ADD     ?x on ?y
+        clear ?x
+        handEmpty
+DELETE  clear ?y
+        hodling ?x
+
+remove ?x from on top ?y:
+IF      ?x on ?y
+        clear ?x
+        handEmpty
+ADD     clear ?y
+        hoding ?x
+DELETE  ?x on ?y
+        clear ?x
+        handEmpty
+
+pick up ?x from the table:
+IF      ontable ?x
+        clear ?x
+        handEmpty
+ADD     hoding ?x
+DELETE  ontable ?x
+        clear ?x
+        handEmpty
+
+put ?x down on the table:
+IF      holding ?x
+ADD     ontable ?x
+        clear ?x
+        handEmpty
+DELETE  hoding ?x
+
+(やりたいこと)
+    〇変数束縛のバクをとる
+        ・A on A とかが発生する
+            →　変数束縛の仕方を調べる
+
+    〇オペレータの選び方を直す
+        ・現状
+            乱数で選ばれたオペレータの優先順位を最下位に
+
+        ・第一案
+            メンバ変数で、各オペレータの最近使用された状況を保存(たぶんHashMap)
+
+            →　次使用するときは、theBindingsと比較して、一番最近と同じ変数割り当てなら
+            　 別の変数割り当てorオペレータを使用させる
+            ２つ前のオペレータと同じ(後ろ向き推論だから、２つ前まで検索した後に)
+            (変数束縛がその時点で完了しない場合を考えると...)
+
+            →　変数束縛をやり直す
+
+            →　失敗したら、別のオペレータを試す
+
+        ・第二案
+            変数束縛まで成功したオペレータは優先順位を最下位に落とす
+
+            →　たぶんほぼ意味ない
+
+(メモ)
+・変数束縛をやってるのは、Unifier::tokenMatching(String, String)から
+  varMatching(String,String)に入って、
+    片方変数の場合:
+        replaceBuffer(String, String)で、変数じゃないほうに束縛
+    
+    両方変数の場合:
+        ゴール状態に変数が含まれている状態なので、replaceBuffer(String, String)で
+        古い変数を新しい変数で上書き
+  
+  また、replaceBinding(String, String)で、ほかの同じ変数に対しても適応
+
+・ゴール状態は、マッチング成功したら削除
+
+(くそポイント)
+・ゴールリスト内の要素検索かけるごとに再帰で呼んでるから、プログラムが余計に複雑化してる
+
+    →これ直さないと、実装めんどそう
+
+・変数名をオペレータ探索ごとに名前変更しているため、段階がわかりずらい
+
+    →planningAGoalでテンポラリでUniqNumを保持していて、unifyが失敗したら戻せばいいかも
+     (失敗したので、保留)

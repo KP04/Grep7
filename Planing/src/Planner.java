@@ -6,8 +6,6 @@ public class Planner {
 	Random rand;
 	Vector plan;
 	PlannerGUI pgui;
-	int step;
-	ArrayList<Integer> tempOpeNo;
 
 	public static void main(String argv[]) {
 		(new Planner()).start();
@@ -15,18 +13,11 @@ public class Planner {
 
 	Planner() {
 		rand = new Random();
-		tempOpeNo = new ArrayList<Integer>();
-		tempOpeNo.add(-1);
-		tempOpeNo.add(-1);
-		step = 0;
 	}
 
 	Planner(PlannerGUI pgui) {
 		rand = new Random();
 		this.pgui = pgui;
-		tempOpeNo.add(-1);
-		tempOpeNo.add(-1);
-		step = 0;
 	}
 
 	public void start() {
@@ -75,10 +66,15 @@ public class Planner {
 		gv.writeGraphToFile(
 				gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
+	
+	public void printGUIMessage(String str){
+		// GUIに表示する用の関数
+	}
 
 	boolean planning(Vector theGoalList, Vector theCurrentState,
 			Hashtable theBinding) {
 		System.out.println("*** GOALS ***" + theGoalList);
+		System.out.println("*** STATE ***" + theCurrentState);
 		System.out.println("*** BIND ***" + theBinding);
 		if (theGoalList.size() == 1) {
 			String aGoal = (String) theGoalList.elementAt(0);
@@ -94,7 +90,7 @@ public class Planner {
 			// おそらく check point. ゴール状態を満たすまでに探索したオペレータのインデックスをtepPointから更新しつつ保持
 			int cPoint = 0;
 			while (cPoint < operators.size()) {
-				System.out.println("cPoint:"+cPoint);
+				System.out.println("cPoint:" + cPoint);
 
 				// Store original binding
 				Hashtable orgBinding = new Hashtable();
@@ -114,7 +110,7 @@ public class Planner {
 						theBinding, cPoint);
 
 				// オペレータのインデックス+1 (そもそも現状にマッチングしてたら0)
-				System.out.println("tmpPoint: "+tmpPoint);
+				System.out.println("tmpPoint: " + tmpPoint);
 
 				if (tmpPoint != -1) {
 					theGoalList.removeElementAt(0);
@@ -124,7 +120,7 @@ public class Planner {
 						return true;
 					} else {
 						cPoint = tmpPoint;
-						//System.out.println("Fail::"+cPoint);
+						// System.out.println("Fail::"+cPoint);
 						theGoalList.insertElementAt(aGoal, 0);
 
 						theBinding.clear();
@@ -171,21 +167,19 @@ public class Planner {
 
 		/* ***************** 乱数の個所 ****************************** */
 
-		int randInt = 0;//Math.abs(rand.nextInt()) % operators.size();
 		/*
-		while(randInt == tempOpeNo.get(step % 2))
-		{
-			randInt = Math.abs(rand.nextInt()) % operators.size();
-		}
-		tempOpeNo.set(step % 2, randInt);
-		*/
-		//System.out.println("Before:\n" + operators);
+		int randInt = Math.abs(rand.nextInt()) % operators.size();
+		 * while(randInt == tempOpeNo.get(step % 2)) { randInt =
+		 * Math.abs(rand.nextInt()) % operators.size(); } tempOpeNo.set(step %
+		 * 2, randInt);
+		// System.out.println("Before:\n" + operators);
 		Operator op = (Operator) operators.elementAt(randInt);
-		System.out.println(op);
+		// System.out.println(op);
 		operators.removeElementAt(randInt);
 		operators.addElement(op);
-		System.out.println("After:\n" + operators);
-		//System.out.println("Target:\n" + op);
+		// System.out.println("After:\n" + operators);
+		// System.out.println("Target:\n" + op);
+		 * */
 
 		/* *********************************************************** */
 
@@ -212,15 +206,22 @@ public class Planner {
 			Vector addList = (Vector) anOperator.getAddList();
 
 			for (int j = 0; j < addList.size(); j++) {
+				int tempUniqueNum = uniqueNum;
 				if ((new Unifier()).unify(theGoal,
 						(String) addList.elementAt(j), theBinding)) {
 					// 具体化し、あらたなゴールを生成
 					Operator newOperator = anOperator.instantiate(theBinding);
 					Vector newGoals = (Vector) newOperator.getIfList();
-					System.out.println(newOperator.name);
+					//System.out.println(newOperator.name);
+
+					// 何の根拠もないから、修正案件
+					Operator op = (Operator) operators.elementAt(i);
+					operators.removeElementAt(i);
+					operators.addElement(op);
 
 					// 再帰呼び出し
 					if (planning(newGoals, theCurrentState, theBinding)) {
+						newOperator = newOperator.instantiate(theBinding);
 						System.out.println(newOperator.name);
 						plan.addElement(newOperator);
 						theCurrentState = newOperator
@@ -571,7 +572,7 @@ class Unifier {
 			orgBindings.put(key, value);
 		}
 		this.vars = theBindings;
-		if (unify(string1, string2)) {
+		if (unifyToken(string1, string2, theBindings)) {
 			return true;
 		} else {
 			// 失敗したら元に戻す．
@@ -585,7 +586,8 @@ class Unifier {
 		}
 	}
 
-	public boolean unify(String string1, String string2) {
+	// 関数名変更した
+	public boolean unifyToken(String string1, String string2, Hashtable theBindings) {
 		// 同じなら成功
 		if (string1.equals(string2))
 			return true;
@@ -617,7 +619,7 @@ class Unifier {
 		}
 
 		for (int i = 0; i < length; i++) {
-			if (!tokenMatching(buffer1[i], buffer2[i])) {
+			if (!tokenMatching(buffer1[i], buffer2[i], theBindings)) {
 				return false;
 			}
 		}
@@ -625,13 +627,14 @@ class Unifier {
 		return true;
 	}
 
-	boolean tokenMatching(String token1, String token2) {
+	// 課題7-1 変更箇所
+	boolean tokenMatching(String token1, String token2, Hashtable theBinding) {
 		if (token1.equals(token2))
 			return true;
 		if (var(token1) && !var(token2))
-			return varMatching(token1, token2);
+			return varMatching(token1, token2, theBinding);
 		if (!var(token1) && var(token2))
-			return varMatching(token2, token1);
+			return varMatching(token2, token1, theBinding);
 		if (var(token1) && var(token2))
 			return varMatching(token1, token2);
 		return false;
@@ -645,6 +648,31 @@ class Unifier {
 				return false;
 			}
 		} else {
+			replaceBuffer(vartoken, token);
+			if (vars.contains(vartoken)) {
+				replaceBindings(vartoken, token);
+			}
+			vars.put(vartoken, token);
+		}
+		return true;
+	}
+
+	boolean varMatching(String vartoken, String token, Hashtable theBinding) {
+		if (vars.containsKey(vartoken)) {
+			if (token.equals(vars.get(vartoken))) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			String uniqueNum = vartoken.replaceAll("[^0-9]", "");
+			for (Enumeration e = theBinding.keys(); e.hasMoreElements();) {
+				// 同じアサーション内の異なる変数で同じ値が割り当てられた際の処理
+				String key = (String) e.nextElement();
+				String value = (String) theBinding.get(key);
+				if(key.contains(uniqueNum) && value.equals(token))
+					return false;
+			}
 			replaceBuffer(vartoken, token);
 			if (vars.contains(vartoken)) {
 				replaceBindings(vartoken, token);
