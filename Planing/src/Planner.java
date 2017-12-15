@@ -66,7 +66,7 @@ public class Planner {
 		gv.writeGraphToFile(
 				gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
-	
+
 	public void printGUIMessage(String str){
 		// GUIに表示する用の関数
 	}
@@ -262,9 +262,58 @@ public class Planner {
 
 	private Vector initGoalList() {
 		Vector goalList = new Vector();
-		goalList.addElement("B on C");
-		goalList.addElement("A on B");
-		return goalList;
+		// バグ
+		goalList.addElement("ontable A");
+		 //* 積みあがった状態から降ろすのはループしちゃうっぽい
+		goalList.addElement("C on B");
+
+		//goalList.addElement("A on B on C");
+		Vector newGoalList = alignGoalList(goalList);
+		System.out.println(newGoalList);
+		return newGoalList;
+	}
+
+	// ゴールリストを都合のいいように編集
+	private Vector alignGoalList(Vector goalList){
+		Vector newGoalList = new Vector();
+		ArrayList<String> allObjects = new ArrayList<String>();
+
+		for(int index = 0; index < goalList.size(); ++index){
+			ArrayList<String> objects = new ArrayList<String>();
+			boolean isOnState = false;
+			StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
+			String lastObject = "";
+			while(tokenizer.hasMoreTokens()){
+				String token = tokenizer.nextToken();
+				if(!token.equals("on")){
+					objects.add(token);
+					lastObject = token;
+				}
+				else{
+					isOnState = true;
+				}
+			}
+
+			int insertIndex = allObjects.size();
+
+			if(allObjects.contains(lastObject)){
+				insertIndex = allObjects.indexOf(lastObject);
+				allObjects.remove(insertIndex);
+			}
+			if(isOnState){
+				allObjects.addAll(insertIndex, objects);
+			}
+			else{
+				newGoalList.add((String)goalList.get(index));
+			}
+		}
+
+		for(int index = allObjects.size() - 1; index > 0; --index){
+			String goal = allObjects.get(index - 1) + " on " + allObjects.get(index);
+			newGoalList.add(goal);
+		}
+
+		return newGoalList;
 	}
 
 	private Vector initGoalList(PlannerGUI pgui) {
@@ -383,9 +432,12 @@ class Operator {
 	Vector ifList;
 	Vector addList;
 	Vector deleteList;
+	Vector pairedOperatorList;
 
-	Operator(String theName, Vector theIfList, Vector theAddList,
-			Vector theDeleteList) {
+	Operator(String theName,
+			 Vector theIfList,
+			 Vector theAddList,
+			 Vector theDeleteList) {
 		name = theName;
 		ifList = theIfList;
 		addList = theAddList;
