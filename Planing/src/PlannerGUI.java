@@ -3,7 +3,8 @@ import java.awt.event.*;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import java.util.concurrent.TimeUnit;
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class PlannerGUI implements ActionListener {
@@ -13,7 +14,7 @@ public class PlannerGUI implements ActionListener {
 	JButton load,save,run;
 	JLabel fileNameLabel1,fileNameLabel2,imgLabel;
 	JPanel btnPanel;
-	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea;
+	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea,moveTextArea;;
 	JScrollPane initialScrollPane,goalScrollPane,imgScrollPane;
 	
 	PlannerGUI() {
@@ -24,7 +25,7 @@ public class PlannerGUI implements ActionListener {
 		frame.setSize(936, 643);
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(null);
-		frame.setResizable(false);
+		//frame.setResizable(false);
 
 		contentPane = frame.getContentPane();
 		
@@ -62,7 +63,7 @@ public class PlannerGUI implements ActionListener {
 		run.addActionListener(this);
 		btnPanel = new JPanel();
 		btnPanel = new JPanel(new GridLayout(1, 3));
-		btnPanel.setPreferredSize(new Dimension(150,32*3));
+		btnPanel.setPreferredSize(new Dimension(540,32));
 		btnPanel.setBounds(0,264,540,32);
 		btnPanel.add(load);
 		btnPanel.add(save);
@@ -73,6 +74,11 @@ public class PlannerGUI implements ActionListener {
 		imgScrollPane.setPreferredSize(new Dimension(396,620));
 		imgScrollPane.setBounds(540,0,396,620);
 		
+		moveTextArea = new JTextArea("");
+		moveTextArea.setFont(new Font("Arial", Font.PLAIN, 15));
+		moveTextArea.setPreferredSize(new Dimension(540,322));
+		moveTextArea.setBounds(0,296,540,322);
+		
 		contentPane.add(fileNameLabel1);
 		contentPane.add(fileNameTextArea1);
 		contentPane.add(initialScrollPane);
@@ -81,6 +87,7 @@ public class PlannerGUI implements ActionListener {
 		contentPane.add(goalScrollPane);
 		contentPane.add(btnPanel);
 		contentPane.add(imgScrollPane);
+		contentPane.add(moveTextArea);
 		
 		frame.setVisible(true);
 	}
@@ -107,8 +114,8 @@ public class PlannerGUI implements ActionListener {
 		}
 		else if(button == run){
 			runPlanner();
+			move();
 		}
-		
 	}
 	
 	/**
@@ -132,9 +139,53 @@ public class PlannerGUI implements ActionListener {
 		Planner p = new Planner(this);
 		p.startWithGUI();
 		ImageIcon icon = new ImageIcon("tmp/simple.png");
-		//imgLabel.setIcon(null);
+		imgLabel.setIcon(null);
 		//SwingUtilities.updateComponentTreeUI(frame);
 		imgLabel.setIcon(icon);
+		
+	}
+	
+	public void move(){
+		String blank = "　　　　　";
+		String A = "＿　A 　＿";
+		String B = "＿　B 　＿";
+		String C = "＿　C 　＿";
+		String stick = "　　＿　　";
+		String hand = "／／／／／";
+		String box1 = "＿＿＿＿＿";
+		String box2 = "＿　　　＿";
+		ArrayList<String> move = new ArrayList<String>();
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+		move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
+		move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
+		move.add("　　　　　＿　A 　＿　　　　　＿　B 　＿　　　　　＿　C 　＿　　　　　");
+		move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
+		move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
+		move.add("＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿＿");
+		
+		moveTextArea.setText(writeBuffer(move));
+		
+		for(int i=0; i<5; i++){
+			
+			try{
+				TimeUnit.SECONDS.sleep(1);
+				moveTextArea.setText("1"+i);
+				System.out.println("1"+i);
+			}
+			catch(InterruptedException e){
+			}
+			
+		}
 	}
 	
 	public static void main(String[] arg){
