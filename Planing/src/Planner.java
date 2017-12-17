@@ -183,8 +183,23 @@ public class Planner {
 
 		/* *********************************************************** */
 
+		/* 対になるオペレータの優先順位を上げる */
+		/* どっちかっていうと置くほうだけ変数束縛が対になるオペレータと同じ場合を考えたい
+		if(beforeOperator != null){
+		Vector pairs = beforeOperator.getPairedOperatorList();
+		for(int i = 0; i < pairs.size(); ++i)
+		{
+			Operator pair = pairs.get(i);
+			operators.remove(pair);
+			// 先頭に持ってく
+			operators.add(0, pair);
+		}
+		}
+		*/
+
 		for (int i = cPoint; i < operators.size(); i++) {
-			Operator anOperator = rename((Operator) operators.elementAt(i));
+			Operator targetOperator = (Operator) operators.elementAt(i);
+			Operator anOperator = rename(targetOperator);
 
 			// 現在のCurrent state, Binding, planをbackup
 			Hashtable orgBinding = new Hashtable();
@@ -424,6 +439,19 @@ public class Planner {
 		deleteList4.addElement(new String("holding ?x"));
 		Operator operator4 = new Operator(name4, ifList4, addList4, deleteList4);
 		operators.addElement(operator4);
+
+		// 対になるオペレータを登録
+		operator1.addPairedOperator(operator3);
+		operator1.addPairedOperator(operator4);
+
+		operator2.addPairedOperator(operator3);
+		operator2.addPairedOperator(operator4);
+
+		operator3.addPairedOperator(operator1);
+		operator3.addPairedOperator(operator2);
+
+		operator4.addPairedOperator(operator1);
+		operator4.addPairedOperator(operator2);
 	}
 }
 
@@ -442,6 +470,7 @@ class Operator {
 		ifList = theIfList;
 		addList = theAddList;
 		deleteList = theDeleteList;
+		pairedOperatorList = new Vector();
 	}
 
 	public Vector getAddList() {
@@ -454,6 +483,14 @@ class Operator {
 
 	public Vector getIfList() {
 		return ifList;
+	}
+
+	public void addPairedOperator(Operator operator){
+		pairedOperatorList.add(operator);
+	}
+
+	public boolean checkPairedOperator(Operator operator){
+		return pairedOperatorList.contains(operator);
 	}
 
 	public String toString() {
