@@ -27,7 +27,7 @@ public class Planner {
 
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding);
+		planning(goalList, initialState, theBinding, null);
 
 		System.out.println("***** This is a plan! *****");
 		for (int i = 0; i < plan.size(); i++) {
@@ -44,7 +44,7 @@ public class Planner {
 		System.out.println(initialState);
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding);
+		planning(goalList, initialState, theBinding, null);
 		GraphViz gv = new GraphViz();
 		gv.addln(gv.start_graph());
 		Operator op1, op2;
@@ -71,14 +71,16 @@ public class Planner {
 		// GUIに表示する用の関数
 	}
 
-	boolean planning(Vector theGoalList, Vector theCurrentState,
-			Hashtable theBinding) {
+	boolean planning(Vector theGoalList,
+					 Vector theCurrentState,
+					 Hashtable theBinding,
+					 Operator nextOperator) {
 		System.out.println("*** GOALS ***" + theGoalList);
 		System.out.println("*** STATE ***" + theCurrentState);
 		System.out.println("*** BIND ***" + theBinding);
 		if (theGoalList.size() == 1) {
 			String aGoal = (String) theGoalList.elementAt(0);
-			if (planningAGoal(aGoal, theCurrentState, theBinding, 0) != -1) {
+			if (planningAGoal(aGoal, theCurrentState, theBinding, 0, nextOperator) != -1) {
 				return true;
 			} else {
 				return false;
@@ -106,8 +108,7 @@ public class Planner {
 					orgState.addElement(theCurrentState.elementAt(i));
 				}
 
-				int tmpPoint = planningAGoal(aGoal, theCurrentState,
-						theBinding, cPoint);
+				int tmpPoint = planningAGoal(aGoal, theCurrentState, theBinding, cPoint, nextOperator);
 
 				// オペレータのインデックス+1 (そもそも現状にマッチングしてたら0)
 				System.out.println("tmpPoint: " + tmpPoint);
@@ -115,7 +116,7 @@ public class Planner {
 				if (tmpPoint != -1) {
 					theGoalList.removeElementAt(0);
 					System.out.println(theCurrentState);
-					if (planning(theGoalList, theCurrentState, theBinding)) {
+					if (planning(theGoalList, theCurrentState, theBinding, nextOperator)) {
 						System.out.println("Success !");
 						return true;
 					} else {
@@ -153,14 +154,22 @@ public class Planner {
 		}
 	}
 
-	private int planningAGoal(String theGoal, Vector theCurrentState,
-			Hashtable theBinding, int cPoint) {
+	private int planningAGoal(String theGoal,
+							  Vector theCurrentState,
+							  Hashtable theBinding,
+							  int cPoint,
+							  Operator nextOperator) {
 		System.out.println("**" + theGoal);
 		int size = theCurrentState.size();
 		for (int i = 0; i < size; i++) {
 			String aState = (String) theCurrentState.elementAt(i);
 			// 現状にマッチングする状態が来たら返す
-			if ((new Unifier()).unify(theGoal, aState, theBinding)) {
+			int tempUniqueNum = uniqueNum;
+			boolean isRelatedNextOperator = false;
+			if(nextOperator != null){
+				isRelatedNextOperator = nextOperator.getIsRelatedNextOperator();
+			}
+			if ((new Unifier()).unify(theGoal, aState, theBinding, isRelatedNextOperator)) {
 				return 0;
 			}
 		}
@@ -184,18 +193,17 @@ public class Planner {
 		/* *********************************************************** */
 
 		/* 対になるオペレータの優先順位を上げる */
-		/* どっちかっていうと置くほうだけ変数束縛が対になるオペレータと同じ場合を考えたい
-		if(beforeOperator != null){
-		Vector pairs = beforeOperator.getPairedOperatorList();
-		for(int i = 0; i < pairs.size(); ++i)
-		{
-			Operator pair = pairs.get(i);
-			operators.remove(pair);
-			// 先頭に持ってく
-			operators.add(0, pair);
+		// どっちかっていうと置くほうだけ変数束縛が対になるオペレータと同じ場合を考えたい
+		if(nextOperator != null){
+			Vector pairs = nextOperator.GetPairedOperatorList();
+			for(int i = 0; i < pairs.size(); ++i)
+			{
+				Operator pair = (Operator) pairs.get(i);
+				operators.remove(pair);
+				// 先頭に持ってく
+				operators.add(0, pair);
+			}
 		}
-		}
-		*/
 
 		for (int i = cPoint; i < operators.size(); i++) {
 			Operator targetOperator = (Operator) operators.elementAt(i);
@@ -222,8 +230,12 @@ public class Planner {
 
 			for (int j = 0; j < addList.size(); j++) {
 				int tempUniqueNum = uniqueNum;
+				boolean isRelatedNextOperator = false;
+				if(nextOperator != null){
+					isRelatedNextOperator = nextOperator.getIsRelatedNextOperator();
+				}
 				if ((new Unifier()).unify(theGoal,
-						(String) addList.elementAt(j), theBinding)) {
+						(String) addList.elementAt(j), theBinding, isRelatedNextOperator)) {
 					// 具体化し、あらたなゴールを生成
 					Operator newOperator = anOperator.instantiate(theBinding);
 					Vector newGoals = (Vector) newOperator.getIfList();
@@ -235,7 +247,7 @@ public class Planner {
 					operators.addElement(op);
 
 					// 再帰呼び出し
-					if (planning(newGoals, theCurrentState, theBinding)) {
+					if (planning(newGoals, theCurrentState, theBinding, targetOperator)) {
 						newOperator = newOperator.instantiate(theBinding);
 						System.out.println(newOperator.name);
 						plan.addElement(newOperator);
@@ -277,12 +289,11 @@ public class Planner {
 
 	private Vector initGoalList() {
 		Vector goalList = new Vector();
-		// バグ
-		goalList.addElement("ontable A");
-		 //* 積みあがった状態から降ろすのはループしちゃうっぽい
-		goalList.addElement("C on B");
+		// バグ  //* 積みあがった状態から降ろすのはループしちゃうっぽい
+		//goalList.addElement("ontable A");
+		//goalList.addElement("C on B");
 
-		//goalList.addElement("A on B on C");
+		goalList.addElement("A on B on C");
 		Vector newGoalList = alignGoalList(goalList);
 		System.out.println(newGoalList);
 		return newGoalList;
@@ -381,7 +392,7 @@ public class Planner {
 		Vector deleteList1 = new Vector();
 		deleteList1.addElement(new String("clear ?y"));
 		deleteList1.addElement(new String("holding ?x"));
-		Operator operator1 = new Operator(name1, ifList1, addList1, deleteList1);
+		Operator operator1 = new Operator(name1, ifList1, addList1, deleteList1, false);
 		operators.addElement(operator1);
 
 		// OPERATOR 2
@@ -401,7 +412,7 @@ public class Planner {
 		deleteList2.addElement(new String("?x on ?y"));
 		deleteList2.addElement(new String("clear ?x"));
 		deleteList2.addElement(new String("handEmpty"));
-		Operator operator2 = new Operator(name2, ifList2, addList2, deleteList2);
+		Operator operator2 = new Operator(name2, ifList2, addList2, deleteList2, true);
 		operators.addElement(operator2);
 
 		// OPERATOR 3
@@ -420,7 +431,7 @@ public class Planner {
 		deleteList3.addElement(new String("ontable ?x"));
 		deleteList3.addElement(new String("clear ?x"));
 		deleteList3.addElement(new String("handEmpty"));
-		Operator operator3 = new Operator(name3, ifList3, addList3, deleteList3);
+		Operator operator3 = new Operator(name3, ifList3, addList3, deleteList3, true);
 		operators.addElement(operator3);
 
 		// OPERATOR 4
@@ -437,7 +448,7 @@ public class Planner {
 		// / DELETE-LIST
 		Vector deleteList4 = new Vector();
 		deleteList4.addElement(new String("holding ?x"));
-		Operator operator4 = new Operator(name4, ifList4, addList4, deleteList4);
+		Operator operator4 = new Operator(name4, ifList4, addList4, deleteList4, false);
 		operators.addElement(operator4);
 
 		// 対になるオペレータを登録
@@ -461,16 +472,19 @@ class Operator {
 	Vector addList;
 	Vector deleteList;
 	Vector pairedOperatorList;
+	boolean isRelatedNextOperator;
 
 	Operator(String theName,
 			 Vector theIfList,
 			 Vector theAddList,
-			 Vector theDeleteList) {
+			 Vector theDeleteList,
+			 boolean theFlag) {
 		name = theName;
 		ifList = theIfList;
 		addList = theAddList;
 		deleteList = theDeleteList;
 		pairedOperatorList = new Vector();
+		isRelatedNextOperator = theFlag;
 	}
 
 	public Vector getAddList() {
@@ -485,12 +499,20 @@ class Operator {
 		return ifList;
 	}
 
+	public Vector GetPairedOperatorList(){
+		return pairedOperatorList;
+	}
+
 	public void addPairedOperator(Operator operator){
 		pairedOperatorList.add(operator);
 	}
 
 	public boolean checkPairedOperator(Operator operator){
 		return pairedOperatorList.contains(operator);
+	}
+
+	public boolean getIsRelatedNextOperator(){
+		return isRelatedNextOperator;
 	}
 
 	public String toString() {
@@ -553,7 +575,7 @@ class Operator {
 		// 新しいnameを作る
 		String newName = renameVars(name, renamedVarsTable);
 
-		return new Operator(newName, newIfList, newAddList, newDeleteList);
+		return new Operator(newName, newIfList, newAddList, newDeleteList, isRelatedNextOperator);
 	}
 
 	private Vector getVars(String thePattern, Vector vars) {
@@ -614,7 +636,7 @@ class Operator {
 					(String) deleteList.elementAt(i), theBinding);
 			newDeleteList.addElement(newDelete);
 		}
-		return new Operator(newName, newIfList, newAddList, newDeleteList);
+		return new Operator(newName, newIfList, newAddList, newDeleteList, isRelatedNextOperator);
 	}
 
 	private String instantiateString(String thePattern, Hashtable theBinding) {
@@ -653,7 +675,7 @@ class Unifier {
 		// vars = new Hashtable();
 	}
 
-	public boolean unify(String string1, String string2, Hashtable theBindings) {
+	public boolean unify(String string1, String string2, Hashtable theBindings, boolean isRelatedNextOperator) {
 		Hashtable orgBindings = new Hashtable();
 		for (Enumeration e = theBindings.keys(); e.hasMoreElements();) {
 			String key = (String) e.nextElement();
@@ -661,7 +683,7 @@ class Unifier {
 			orgBindings.put(key, value);
 		}
 		this.vars = theBindings;
-		if (unifyToken(string1, string2, theBindings)) {
+		if (unifyToken(string1, string2, theBindings, isRelatedNextOperator)) {
 			return true;
 		} else {
 			// 失敗したら元に戻す．
@@ -676,7 +698,7 @@ class Unifier {
 	}
 
 	// 関数名変更した
-	public boolean unifyToken(String string1, String string2, Hashtable theBindings) {
+	public boolean unifyToken(String string1, String string2, Hashtable theBindings, boolean isRelatedNextOperator) {
 		// 同じなら成功
 		if (string1.equals(string2))
 			return true;
@@ -707,25 +729,38 @@ class Unifier {
 			}
 		}
 
+		Integer varTokenCount[] = {0};
+		Integer matchPreviousResultCount[] = {0};
+
 		for (int i = 0; i < length; i++) {
-			if (!tokenMatching(buffer1[i], buffer2[i], theBindings)) {
+			if (!tokenMatching(buffer1[i], buffer2[i], theBindings, varTokenCount, matchPreviousResultCount)) {
 				return false;
 			}
+		}
+
+		if(isRelatedNextOperator && varTokenCount == matchPreviousResultCount){
+			return false;
 		}
 
 		return true;
 	}
 
 	// 課題7-1 変更箇所
-	boolean tokenMatching(String token1, String token2, Hashtable theBinding) {
-		if (token1.equals(token2))
+	boolean tokenMatching(String token1, String token2, Hashtable theBinding, Integer[] varTokenCount, Integer[] matchPreviousResultCount) {
+		if (token1.equals(token2)){
 			return true;
-		if (var(token1) && !var(token2))
-			return varMatching(token1, token2, theBinding);
-		if (!var(token1) && var(token2))
-			return varMatching(token2, token1, theBinding);
-		if (var(token1) && var(token2))
+		}
+		if (var(token1) && !var(token2)){
+			++varTokenCount[0];
+			return varMatching(token1, token2, theBinding, matchPreviousResultCount);
+		}
+		if (!var(token1) && var(token2)){
+			++varTokenCount[0];
+			return varMatching(token2, token1, theBinding, matchPreviousResultCount);
+		}
+		if (var(token1) && var(token2)){
 			return varMatching(token1, token2);
+		}
 		return false;
 	}
 
@@ -746,7 +781,7 @@ class Unifier {
 		return true;
 	}
 
-	boolean varMatching(String vartoken, String token, Hashtable theBinding) {
+	boolean varMatching(String vartoken, String token, Hashtable theBinding, Integer[] matchPreviousResultCount) {
 		if (vars.containsKey(vartoken)) {
 			if (token.equals(vars.get(vartoken))) {
 				return true;
@@ -759,8 +794,12 @@ class Unifier {
 				// 同じアサーション内の異なる変数で同じ値が割り当てられた際の処理
 				String key = (String) e.nextElement();
 				String value = (String) theBinding.get(key);
-				if(key.contains(uniqueNum) && value.equals(token))
+				if(key.contains(uniqueNum) && value.equals(token)){
 					return false;
+				}
+				else if(key.contains(String.valueOf(Integer.parseInt(uniqueNum) - 1)) && value.equals(token)){
+					++matchPreviousResultCount[0];
+				}
 			}
 			replaceBuffer(vartoken, token);
 			if (vars.contains(vartoken)) {
