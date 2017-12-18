@@ -273,7 +273,8 @@ public class Planner {
 	private Vector initGoalList() {
 		Vector goalList = new Vector();
 
-		goalList.addElement("A on B on C");
+		goalList.addElement("A on B");
+		goalList.addElement("B on C");
 		Vector newGoalList = alignGoalList(goalList);
 		System.out.println(newGoalList);
 		return newGoalList;
@@ -288,12 +289,13 @@ public class Planner {
 			ArrayList<String> objects = new ArrayList<String>();
 			boolean isOnState = false;
 			StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
-			String lastObject = "";
+			String firstObject = "";
 			while(tokenizer.hasMoreTokens()){
 				String token = tokenizer.nextToken();
 				if(!token.equals("on")){
 					objects.add(token);
-					lastObject = token;
+					if(firstObject.equals(""))
+						firstObject = token;
 				}
 				else{
 					isOnState = true;
@@ -302,8 +304,8 @@ public class Planner {
 
 			int insertIndex = allObjects.size();
 
-			if(allObjects.contains(lastObject)){
-				insertIndex = allObjects.indexOf(lastObject);
+			if(allObjects.contains(firstObject)){
+				insertIndex = allObjects.indexOf(firstObject);
 				allObjects.remove(insertIndex);
 			}
 			if(isOnState){
