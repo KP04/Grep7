@@ -6,6 +6,7 @@ public class Planner {
 	Random rand;
 	Vector plan;
 	PlannerGUI pgui;
+	ArrayList<String> process = new ArrayList<String>();
 
 	public static void main(String argv[]) {
 		(new Planner()).start();
@@ -50,6 +51,7 @@ public class Planner {
 		Operator op1, op2;
 		String s1, s2;
 		for (int i = 0; i < plan.size(); i++) {
+			process.add(((Operator) plan.elementAt(i)).instantiate(theBinding).name);
 			if (i != 0) {
 				op1 = (Operator) plan.elementAt(i - 1);
 				op2 = (Operator) plan.elementAt(i);
@@ -62,13 +64,9 @@ public class Planner {
 		}
 		String type = "png";
 		String repesentationType = "dot";
-		File out = new File("tmp/simple" + "." + type);
-		gv.writeGraphToFile(
-				gv.getGraph(gv.getDotSource(), type, repesentationType), out);
-	}
-
-	public void printGUIMessage(String str){
-		// GUIに表示する用の関数
+		pgui.counter++;
+		File out = new File("tmp/simple"+ pgui.counter + "." + type);
+		gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
 
 	boolean planning(Vector theGoalList,
@@ -339,11 +337,11 @@ public class Planner {
 
 	private Vector initGoalList(PlannerGUI pgui) {
 		Vector goalList = new Vector();
-		String[] gList = pgui.goalTextArea.getText().split("\n");
-		for (int i = 0; i < gList.length; i++) {
-			goalList.addElement(gList[i]);
-		}
-		return goalList;
+		 String[] gList = pgui.goalTextArea.getText().split("\n");
+		 for(int i=0; i<gList.length; i++){
+			 goalList.addElement(gList[i]);
+		 }
+		 return goalList;
 	}
 
 	private Vector initInitialState() {
@@ -361,11 +359,11 @@ public class Planner {
 
 	private Vector initInitialState(PlannerGUI pgui) {
 		Vector initialState = new Vector();
-		String[] iList = pgui.initialTextArea.getText().split("\n");
-		for (int i = 0; i < iList.length; i++) {
-			initialState.addElement(iList[i]);
-		}
-		return initialState;
+		 String[] iList = pgui.initialTextArea.getText().split("\n");
+		 for(int i=0; i<iList.length; i++){
+			 initialState.addElement(iList[i]);
+		 }
+		 return initialState;
 	}
 
 	private void initOperators() {
