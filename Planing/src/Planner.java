@@ -241,11 +241,6 @@ public class Planner {
 					Vector newGoals = (Vector) newOperator.getIfList();
 					//System.out.println(newOperator.name);
 
-					// 何の根拠もないから、修正案件
-					Operator op = (Operator) operators.elementAt(i);
-					operators.removeElementAt(i);
-					operators.addElement(op);
-
 					// 再帰呼び出し
 					if (planning(newGoals, theCurrentState, theBinding, targetOperator)) {
 						newOperator = newOperator.instantiate(theBinding);
