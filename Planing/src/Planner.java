@@ -6,6 +6,7 @@ public class Planner {
  Random rand;
  Vector plan;
  PlannerGUI pgui;
+ ArrayList<String> process = new ArrayList<String>();
 
  public static void main(String argv[]){
   (new Planner()).start();
@@ -51,6 +52,7 @@ public class Planner {
 		Operator op1, op2;
 		String s1, s2;
 		for (int i = 0; i < plan.size(); i++) {
+			process.add(((Operator) plan.elementAt(i)).instantiate(theBinding).name);
 			if (i != 0) {
 				op1 = (Operator) plan.elementAt(i - 1);
 				op2 = (Operator) plan.elementAt(i);
@@ -61,7 +63,8 @@ public class Planner {
 		}
 		String type = "png";
 		String repesentationType = "dot";
-		File out = new File("tmp/simple" + "." + type);
+		pgui.counter++;
+		File out = new File("tmp/simple"+ pgui.counter + "." + type);
 		gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
 
@@ -210,6 +213,7 @@ public class Planner {
  private Operator rename(Operator theOperator){
   Operator newOperator = theOperator.getRenamedOperator(uniqueNum);
   uniqueNum = uniqueNum + 1;
+
   return newOperator;
  }
 
@@ -217,6 +221,8 @@ public class Planner {
   Vector goalList = new Vector();
   goalList.addElement("B on C");
   goalList.addElement("A on B");
+  goalList.addElement("clear A");
+  goalList.addElement("handEmpty");
   return goalList;
  }
  
@@ -261,7 +267,7 @@ public class Planner {
   Vector ifList1 = new Vector();
   ifList1.addElement(new String("clear ?y"));
   ifList1.addElement(new String("holding ?x"));
-  /// ADD-LIST
+  /// ADD-LISTSystem.out.println(currentState)
   Vector addList1 = new Vector();
   addList1.addElement(new String("?x on ?y"));
   addList1.addElement(new String("clear ?x"));
