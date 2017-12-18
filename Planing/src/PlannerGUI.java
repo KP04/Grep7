@@ -11,16 +11,16 @@ import javax.swing.*;
 public class PlannerGUI implements ActionListener {
 	JFrame frame;
 	Container contentPane;
-	
+
 	JButton load,save,run;
 	JLabel fileNameLabel1,fileNameLabel2,imgLabel,opeLabel;
 	JPanel btnPanel;
 	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea,moveTextArea,opeTextArea;
 	JScrollPane initialScrollPane,goalScrollPane,imgScrollPane;
-	
+
 	Runner runner;
 	int counter = 0;
-	
+
 	PlannerGUI() {
 		frame = new JFrame();
 
@@ -29,10 +29,10 @@ public class PlannerGUI implements ActionListener {
 		frame.setSize(936, 765);
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(null);
-		//frame.setResizable(false);
+		frame.setResizable(false);
 
 		contentPane = frame.getContentPane();
-		
+
 		fileNameLabel1 = new JLabel("Initial State Filename:");
 		fileNameLabel1.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel1.setPreferredSize(new Dimension(500,32));
@@ -45,7 +45,7 @@ public class PlannerGUI implements ActionListener {
 		initialScrollPane = new JScrollPane(initialTextArea);
 		initialScrollPane.setPreferredSize(new Dimension(260,200));
 		initialScrollPane.setBounds(0,64,260,200);
-		
+
 		fileNameLabel2 = new JLabel("Goal Filename:");
 		fileNameLabel2.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel2.setPreferredSize(new Dimension(500,32));
@@ -58,7 +58,7 @@ public class PlannerGUI implements ActionListener {
 		goalScrollPane = new JScrollPane(goalTextArea);
 		goalScrollPane.setPreferredSize(new Dimension(260,200));
 		goalScrollPane.setBounds(280,64,260,200);
-		
+
 		load = new JButton("Load");
 		load.addActionListener(this);
 		save = new JButton("Save");
@@ -72,12 +72,12 @@ public class PlannerGUI implements ActionListener {
 		btnPanel.add(load);
 		btnPanel.add(save);
 		btnPanel.add(run);
-		
+
 		imgLabel = new JLabel();
 		imgScrollPane = new JScrollPane(imgLabel);
 		imgScrollPane.setPreferredSize(new Dimension(396,742));
 		imgScrollPane.setBounds(540,0,396,742);
-		
+
 		opeLabel = new JLabel("Operation:");
 		opeLabel.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeLabel.setPreferredSize(new Dimension(150,32));
@@ -86,12 +86,12 @@ public class PlannerGUI implements ActionListener {
 		opeTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeTextArea.setPreferredSize(new Dimension(390,32));
 		opeTextArea.setBounds(150,296,390,32);
-		
+
 		moveTextArea = new JTextArea("");
 		moveTextArea.setFont(new Font("Arial", Font.PLAIN, 15));
 		moveTextArea.setPreferredSize(new Dimension(540,412));
 		moveTextArea.setBounds(0,338,540,412);
-		
+
 		contentPane.add(fileNameLabel1);
 		contentPane.add(fileNameTextArea1);
 		contentPane.add(initialScrollPane);
@@ -103,13 +103,13 @@ public class PlannerGUI implements ActionListener {
 		contentPane.add(opeLabel);
 		contentPane.add(opeTextArea);
 		contentPane.add(moveTextArea);
-		
+
 		frame.setVisible(true);
 	}
-	
+
 	public void actionPerformed(ActionEvent event){
 		JButton button = (JButton)event.getSource();
-		
+
 		if(button == load){
 			/*
 			 * FileLoading.fileLoading(fileNameTextArea.getText()でファイルのテキスト(リスト)を受け取り、
@@ -137,10 +137,10 @@ public class PlannerGUI implements ActionListener {
 			runner.start(); //実行
 		}
 	}
-	
+
 	/**
 	 * ファイルから読み込んだテキストを1行ずつ格納したString型のリストをString型に変換するメソッド
-	 * 
+	 *
 	 * @param data
 	 * @return リストdataをString型に変換したもの
 	 */
@@ -154,7 +154,7 @@ public class PlannerGUI implements ActionListener {
 
 		return buffer;
 	}
-	
+
 	public static void main(String[] arg){
 		new PlannerGUI();
 	}
@@ -163,17 +163,17 @@ public class PlannerGUI implements ActionListener {
 class Runner extends Thread{
 	PlannerGUI pgui;
 	Planner p;
-	
+
 	Runner(PlannerGUI pgui){
 		this.pgui = pgui;
 		this.p = new Planner(this.pgui);
 	}
-	
-	
+
+
 	public void run(){
 
 		runPlanner();
-		
+
 		try{
 			move(p.process);
 		}
@@ -181,7 +181,7 @@ class Runner extends Thread{
 			System.out.println(e);
 		}
 	}
-	
+
 	public void runPlanner(){
 		p.startWithGUI();
 
@@ -193,8 +193,8 @@ class Runner extends Thread{
 				}
 		});
 	}
-	
-	
+
+
 	public void move(ArrayList<String> process){
 		HashMap<String,Integer> state = new HashMap<String,Integer>();
 		state.put("A", 1);
@@ -230,14 +230,14 @@ class Runner extends Thread{
 		move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
 		move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
 		move.add("／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／");
-		
+
 		pgui.moveTextArea.setText(pgui.writeBuffer(move));
-		
+
 		for(int i=0; i<process.size(); i++){
 			pgui.opeTextArea.setText((i+1)+":"+process.get(i));
 			String ope = process.get(i);
 			_Unifier unifier = new _Unifier();
-			
+
 			if(ope.contains("Place")){
 				unifier.unify(ope, "Place ?x on ?y");
 				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
@@ -258,7 +258,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
 						move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
@@ -272,7 +272,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
 						move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
@@ -287,7 +287,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				state.put(unifier.vars.get("?x"), state.get(unifier.vars.get("?y")));
 				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
 			}
@@ -309,7 +309,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
 						move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
@@ -344,7 +344,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
 						move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
@@ -371,7 +371,7 @@ class Runner extends Thread{
 					case "B": yRen = 15; break;
 					default : yRen = 25;
 				}
-				
+
 				int len = Math.abs(yRen-xRen);
 
 				for(int j=0; j<len; j++){
@@ -388,7 +388,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
 						move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
@@ -402,7 +402,7 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
 						move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
@@ -417,13 +417,13 @@ class Runner extends Thread{
 					sleep();
 					pgui.moveTextArea.setText(pgui.writeBuffer(move));
 				}
-				
+
 				state.put(unifier.vars.get("?x"), (yRen-5)/10);
 				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
 			}
 		}
 	}
-	
+
 	public void sleep(){
 		try{
 			Thread.sleep(50);

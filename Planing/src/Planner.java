@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Planner {
 	Vector operators;
-	Random rand;
 	Vector plan;
 	PlannerGUI pgui;
 	ArrayList<String> process = new ArrayList<String>();
@@ -13,11 +12,9 @@ public class Planner {
 	}
 
 	Planner() {
-		rand = new Random();
 	}
 
 	Planner(PlannerGUI pgui) {
-		rand = new Random();
 		this.pgui = pgui;
 	}
 
@@ -176,17 +173,10 @@ public class Planner {
 
 		/*
 		int randInt = Math.abs(rand.nextInt()) % operators.size();
-		 * while(randInt == tempOpeNo.get(step % 2)) { randInt =
-		 * Math.abs(rand.nextInt()) % operators.size(); } tempOpeNo.set(step %
-		 * 2, randInt);
-		// System.out.println("Before:\n" + operators);
 		Operator op = (Operator) operators.elementAt(randInt);
-		// System.out.println(op);
 		operators.removeElementAt(randInt);
 		operators.addElement(op);
-		// System.out.println("After:\n" + operators);
-		// System.out.println("Target:\n" + op);
-		 * */
+		*/
 
 		/* *********************************************************** */
 
@@ -282,9 +272,6 @@ public class Planner {
 
 	private Vector initGoalList() {
 		Vector goalList = new Vector();
-		// バグ  //* 積みあがった状態から降ろすのはループしちゃうっぽい
-		//goalList.addElement("ontable A");
-		//goalList.addElement("C on B");
 
 		goalList.addElement("A on B on C");
 		Vector newGoalList = alignGoalList(goalList);

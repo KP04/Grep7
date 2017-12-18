@@ -39,7 +39,8 @@ public class ColorAndForm {
 		addList5.addElement(new String("red on ?y"));
 		// DELETE-LIST
 		Vector deleteList5 = new Vector();
-		Operator operator5 = new Operator(name5, ifList5, addList5, deleteList5, false);
+		Operator operator5 = new Operator(name5, ifList5, addList5,
+				deleteList5, false);
 		operators.addElement(operator5);
 
 		// 色の判定
@@ -53,7 +54,8 @@ public class ColorAndForm {
 		addList6.addElement(new String("white on ?y"));
 		// DELETE-LIST
 		Vector deleteList6 = new Vector();
-		Operator operator6 = new Operator(name6, ifList6, addList6, deleteList6, false);
+		Operator operator6 = new Operator(name6, ifList6, addList6,
+				deleteList6, false);
 		operators.addElement(operator6);
 
 		// 色の判定
@@ -67,7 +69,8 @@ public class ColorAndForm {
 		addList7.addElement(new String("green on ?y"));
 		// DELETE-LIST
 		Vector deleteList7 = new Vector();
-		Operator operator7 = new Operator(name7, ifList7, addList7, deleteList7, false);
+		Operator operator7 = new Operator(name7, ifList7, addList7,
+				deleteList7, false);
 		operators.addElement(operator7);
 
 		// 色の判定
@@ -81,7 +84,8 @@ public class ColorAndForm {
 		addList8.addElement(new String("?x on red"));
 		// DELETE-LIST
 		Vector deleteList8 = new Vector();
-		Operator operator8 = new Operator(name8, ifList8, addList8, deleteList8, false);
+		Operator operator8 = new Operator(name8, ifList8, addList8,
+				deleteList8, false);
 		operators.addElement(operator8);
 
 		// 色の判定
@@ -95,7 +99,8 @@ public class ColorAndForm {
 		addList9.addElement(new String("?x on white"));
 		// DELETE-LIST
 		Vector deleteList9 = new Vector();
-		Operator operator9 = new Operator(name9, ifList9, addList9, deleteList9, false);
+		Operator operator9 = new Operator(name9, ifList9, addList9,
+				deleteList9, false);
 		operators.addElement(operator9);
 
 		// 色の判定
@@ -109,9 +114,9 @@ public class ColorAndForm {
 		addList10.addElement(new String("?x on green"));
 		// DELETE-LIST
 		Vector deleteList10 = new Vector();
-		Operator operator10 = new Operator(name10, ifList10, addList10, deleteList10, false);
+		Operator operator10 = new Operator(name10, ifList10, addList10,
+				deleteList10, false);
 		operators.addElement(operator10);
-
 
 		// 形の判定
 		String name11 = new String("Place square on ?y");
@@ -124,7 +129,8 @@ public class ColorAndForm {
 		addList11.addElement(new String("square on ?y"));
 		// DELETE-LIST
 		Vector deleteList11 = new Vector();
-		Operator operator11 = new Operator(name11, ifList11, addList11, deleteList11, false);
+		Operator operator11 = new Operator(name11, ifList11, addList11,
+				deleteList11, false);
 		operators.addElement(operator11);
 
 		// 形の判定
@@ -138,7 +144,8 @@ public class ColorAndForm {
 		addList12.addElement(new String("triangle on ?y"));
 		// DELETE-LIST
 		Vector deleteList12 = new Vector();
-		Operator operator12 = new Operator(name12, ifList12, addList12, deleteList12, false);
+		Operator operator12 = new Operator(name12, ifList12, addList12,
+				deleteList12, false);
 		operators.addElement(operator12);
 
 		// 形の判定
@@ -152,7 +159,8 @@ public class ColorAndForm {
 		addList13.addElement(new String("trapezoid on ?y"));
 		// DELETE-LIST
 		Vector deleteList13 = new Vector();
-		Operator operator13 = new Operator(name13, ifList13, addList13, deleteList13, false);
+		Operator operator13 = new Operator(name13, ifList13, addList13,
+				deleteList13, false);
 		operators.addElement(operator13);
 
 		// 形の判定
@@ -166,7 +174,8 @@ public class ColorAndForm {
 		addList14.addElement(new String("?x on square"));
 		// DELETE-LIST
 		Vector deleteList14 = new Vector();
-		Operator operator14 = new Operator(name14, ifList14, addList14, deleteList14, false);
+		Operator operator14 = new Operator(name14, ifList14, addList14,
+				deleteList14, false);
 		operators.addElement(operator14);
 
 		// 形の判定
@@ -180,9 +189,9 @@ public class ColorAndForm {
 		addList15.addElement(new String("?x on trapezoid"));
 		// DELETE-LIST
 		Vector deleteList15 = new Vector();
-		Operator operator15 = new Operator(name15, ifList15, addList15, deleteList15, false);
+		Operator operator15 = new Operator(name15, ifList15, addList15,
+				deleteList15, false);
 		operators.addElement(operator15);
-
 
 		// OPERATOR 1
 		// / NAME
@@ -201,27 +210,9 @@ public class ColorAndForm {
 		Vector deleteList1 = new Vector();
 		deleteList1.addElement(new String("clear ?y"));
 		deleteList1.addElement(new String("holding ?x"));
-		Operator operator1 = new Operator(name1, ifList1, addList1, deleteList1, false);
+		Operator operator1 = new Operator(name1, ifList1, addList1,
+				deleteList1, false);
 		operators.addElement(operator1);
-
-		// OPERATOR 3
-		// / NAME
-		String name3 = new String("pick up ?x from the table");
-		// / IF
-		Vector ifList3 = new Vector();
-		ifList3.addElement(new String("ontable ?x"));
-		ifList3.addElement(new String("clear ?x"));
-		ifList3.addElement(new String("handEmpty"));
-		// / ADD-LIST
-		Vector addList3 = new Vector();
-		addList3.addElement(new String("holding ?x"));
-		// / DELETE-LIST
-		Vector deleteList3 = new Vector();
-		deleteList3.addElement(new String("ontable ?x"));
-		deleteList3.addElement(new String("clear ?x"));
-		deleteList3.addElement(new String("handEmpty"));
-		Operator operator3 = new Operator(name3, ifList3, addList3, deleteList3, false);
-		operators.addElement(operator3);
 
 		// OPERATOR 2
 		// / NAME
@@ -240,8 +231,29 @@ public class ColorAndForm {
 		deleteList2.addElement(new String("?x on ?y"));
 		deleteList2.addElement(new String("clear ?x"));
 		deleteList2.addElement(new String("handEmpty"));
-		Operator operator2 = new Operator(name2, ifList2, addList2, deleteList2, false);
+		Operator operator2 = new Operator(name2, ifList2, addList2,
+				deleteList2, false);
 		operators.addElement(operator2);
+
+		// OPERATOR 3
+		// / NAME
+		String name3 = new String("pick up ?x from the table");
+		// / IF
+		Vector ifList3 = new Vector();
+		ifList3.addElement(new String("ontable ?x"));
+		ifList3.addElement(new String("clear ?x"));
+		ifList3.addElement(new String("handEmpty"));
+		// / ADD-LIST
+		Vector addList3 = new Vector();
+		addList3.addElement(new String("holding ?x"));
+		// / DELETE-LIST
+		Vector deleteList3 = new Vector();
+		deleteList3.addElement(new String("ontable ?x"));
+		deleteList3.addElement(new String("clear ?x"));
+		deleteList3.addElement(new String("handEmpty"));
+		Operator operator3 = new Operator(name3, ifList3, addList3,
+				deleteList3, false);
+		operators.addElement(operator3);
 
 		// OPERATOR 4
 		// / NAME
@@ -257,9 +269,9 @@ public class ColorAndForm {
 		// / DELETE-LIST
 		Vector deleteList4 = new Vector();
 		deleteList4.addElement(new String("holding ?x"));
-		Operator operator4 = new Operator(name4, ifList4, addList4, deleteList4, false);
+		Operator operator4 = new Operator(name4, ifList4, addList4,
+				deleteList4, false);
 		operators.addElement(operator4);
-
 
 		// / NAME
 		String name17 = new String("Not Success");
@@ -272,7 +284,8 @@ public class ColorAndForm {
 		// / DELETE-LIST
 		Vector deleteList17 = new Vector();
 		deleteList17.addElement(new String("?x is not triangle"));
-		Operator operator17 = new Operator(name17, ifList17, addList17, deleteList17, false);
+		Operator operator17 = new Operator(name17, ifList17, addList17,
+				deleteList17, false);
 		operators.addElement(operator17);
 	}
 
@@ -305,7 +318,7 @@ public class ColorAndForm {
 		return checkTriangle(initialState);
 	}
 
-	private Vector checkTriangle(Vector initialState){
+	private Vector checkTriangle(Vector initialState) {
 		Vector re = new Vector();
 
 		for (int i = 0; i < initialState.size(); i++) {
