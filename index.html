@@ -56,9 +56,9 @@
 <h2>役割分担</h2>
 <!-- 役割分担を書く．-->
 <ul>
-<li>佐藤嵩晟 : 課題7-3
+<li>佐藤嵩晟 : 課題7-3担当
 <li>塩谷昇平 : 課題7-1担当
-<li>瀬戸口大貴 : 課題7-4担当,グループレポート担当
+<li>瀬戸口大貴 : 課題7-4,グループレポート担当
 <li>長谷川達也 : 課題7-2担当
 </ul>
 
@@ -166,14 +166,344 @@ Place A on ?y8
 初期状態では、Aのブロックはテーブルの上に置いてあるため、「Aを?yの上から取り除く」というオペレータは正しくないことが明らかである。しかし、実際にはAが何かの上に置いてあると仮定してオペレータを実行しようとするため、意味のない推論のループを深く掘り進めてしまう。この結果、出力に正しくない動作が書き出されていると考えられる。
 </p>
 <p>
-この状況を解消するため、オペレータの選択段階で「?xを?yから取り除く」「?xをテーブルから拾い上げる」の2つのオペレータに優先順位をつけ、?xを持ちたい場合は必ず「?xをテーブルから拾い上げる」を先に検討する仕様に変更した。これにより、変数を仮定した推論のループに陥る可能性を排除できた。
+この状況を解消するため、オペレータの選択段階で「?xを?yから取り除く」「?xをテーブルから拾い上げる」の2つのオペレータに優先順位をつけ、?xを持ちたい場合は必ず「?xをテーブルから拾い上げる」を先に検討する仕様に変更した。これにより、下記のような結果を得て変数を仮定した推論のループに陥る可能性を排除できた。
 </p>
+<pre>
+------------------------------
+
+
+***** This is a plan! *****
+pick up B from the table
+Place B on C
+pick up A from the table
+Place A on B
+
+
+------------------------------
+</pre>
 <p>
 この仕様に変更した後、目標状態を変更しながら実行した場合でも、それが合理的に達成可能な目標状態であれば正しく、かつ無駄のない正確な動作をするようになった。
 </p>
 
+<h2>課題7-2</h2>
+<!-- 課題を書く．-->
+教科書のプログラムでは，オペレータ間の競合解消戦略としてランダムなオペレータ選択を採用している．
+これを，効果的な競合解消戦略に改良すべく考察し，実装せよ．
+改良の結果，性能がどの程度向上したかを定量的に（つまり数字で）示すこと．<br>
+<br>
 
-<h2>必須課題7-3</h2>
+<h3>独自仕様の説明</h3>
+
+  独自仕様として、ゴール状態がおかしな書き方がされても対応できるようにした。<br>
+  <br>
+  たとえば、ゴール状態を"A on B on C"という風にしても、内部的には"B on C", "A on B"
+  と分解された状態で認識されるような実装方法をとった。<br>
+  <br>
+
+<h3>プログラムの変更箇所</h3>
+
+  競合戦略を効果的にするために、以下のメソッドを編集および追加をした。<br>
+  <br>
+  Planner::planning：
+  <ol>
+    プランニングを実際に行う関数。後ろ向き推論においてひとつ前のオペレータを
+    引数として渡せるようにした。
+  </ol>
+  Planner::planningAGoal:
+  <ol>
+    プランニングにおいて、ゴール状態を一つずつ検討する関数。Planner::planning
+    と同様にオペレータを引数に渡せるようにした。
+  </ol>
+  Planner::alignGoalList:
+  <ol>
+    ゴールリストをある程度都合のいいように並び替えや分解を行う関数。
+  </ol>
+  Planner::initOperator:
+  <ol>
+    プランニング前に、オペレータ群を初期化する関数。オペレータ間の依存関係を
+    追加する処理を追加した。
+  </ol>
+  Operator::GetPairedOperator:
+  <ol>
+    オペレータに依存している別のオペレータのリストを返す関数。
+  </ol>
+  Operator::addPairedOperator:
+  <ol>
+    引数に渡されたオペレータを依存しているオペレータのリストに追加する関数。
+  </ol>
+  Operator::getIsRelatedNextOperator:
+  <ol>
+    依存関係があるオペレータがひとつ前に来ている場合に、チェックする必要がある
+    のかをフラグに事前知識として与えておいて、それを返す関数。
+  </ol>
+  Unify::unifyToken:
+  <ol>
+    もともとunifyの引数が少ないものだったのだが、名前を変えたもの。比較が必要な
+    場合に、変数束縛がすべて同じでないかを比較する処理を追加した。
+  </ol>
+  Unify::tokenMatching:
+  <ol>
+    それぞれのトークンでマッチングを行う関数。片方が変数の場合に別で定義したvarMatching
+    を呼ぶように処理を変更した。
+  </ol>
+  Unify::varMatching:
+  <ol>
+    それぞれの変数に束縛を行う関数。片方が変数の場合は、引数を増やしたものを呼び、
+    その内部では同じステップの変数割り当てで別の変数なのにかぶっている場合にfalse
+    を返すように処理を追加した。
+  </ol><br>
+  
+  <h3> 実装の説明 </h3>
+  今回、実装した点を大まかにまとめると、以下のようになる。
+  <ol>
+    <li> 変数束縛の別の変数なのに同じ値が入るバグの修正 </li>
+    <li> ゴール状態の編集 </li>
+    <li> 依存関係があるオペレータを優先的に探索するように編集 </li>
+    <li> 一段階前のオペレータに依存関係があり、比較する必要があるならば、変数束縛をチェックする </li>
+  </ol>
+  <br>
+  1.に関しては、そもそもこのバグの原因は、変数束縛の際に同じ段階の中で別の変数なのに同じ値が割り当て
+  られてないかのチェックをしていないのと、変数の割り当てに現在の状態のリストの先頭から条件に合うもの
+  から優先したものを使用しているという２つの仕様がうまいこと重なり合って起こっている。そのため、片方
+  を修正すればこのバグは取り除かれるので、今回は変数束縛時のチェックを行うように実装を変更した。<br>
+  <br>
+  具体的は、Unify::tokenMatchingとUnify::varMatchingを変更することで実現した。Unify::tokenMatching
+  では、片方が変数の場合に、今までの変数束縛の履歴をvarMatchingに渡すようにした。その際に呼ばれる
+  Unify::varMatchingは、元々のプログラムで定義していたものの引数を増やしたものを別で定義したものを使用
+  する。その内部では、変数束縛の履歴の中で同じ段階の変数束縛を探し、その時点で束縛しようとしている値が
+  別の変数にないかをチェックし、あればマッチングを失敗させるためにfalseを返している。以下がその部分の
+  ソースである。
+  <pre class="brush: java">
+      boolean varMatching(String vartoken, 
+                          String token, 
+                          Hashtable theBinding, 
+                          Integer[] matchPreviousResultCount) 
+      {
+        if (vars.containsKey(vartoken)) 
+        {
+          ... 
+        } 
+        else 
+        {
+          String uniqueNum = vartoken.replaceAll("[^0-9]", "");
+          for (Enumeration e = theBinding.keys(); e.hasMoreElements();) 
+          {
+            // 同じアサーション内の異なる変数で同じ値が割り当てられた際の処理
+            String key = (String) e.nextElement();
+            String value = (String) theBinding.get(key);
+            if(key.contains(uniqueNum) && value.equals(token))
+            {
+              return false;
+            }
+            ...
+          }
+          
+          ...
+        }
+        return true;
+      }
+  </pre>
+  <br>
+  次に、2.に関して、これはPlanner::alignGoalListを実装することで実現している。<br>
+  <br>
+  具体的には、引数に与えられたゴールリストの中から"- on -"の形のゴール状態をとり、さらに"-"の部分を
+  抽出する。その後、抽出したオブジェクトが上から並ぶようにリストに格納し、都合のいいようにゴールリスト
+  を再構成したリストを返す。ちなみに、"- on -"の形でないゴール状態はそのまま返すリストの先頭から格納
+  しておく。以下はPlanner::alignGoalListの部分のソースである。
+  <pre class="brush: java">
+      private Vector alignGoalList(Vector goalList)
+      {
+        Vector newGoalList = new Vector();
+        ArrayList&lt;String&gt; allObjects = new ArrayList&lt;String&gt;();
+    
+        for(int index = 0; index < goalList.size(); ++index)
+        {
+          ArrayList&lt;String&gt; objects = new ArrayList&lt;String&gt;();
+          boolean isOnState = false;
+          StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
+          String firstObject = "";
+
+          while(tokenizer.hasMoreTokens())
+          {
+            String token = tokenizer.nextToken();
+            if(!token.equals("on"))
+            {
+              objects.add(token);
+              if(firstObject.equals(""))
+                firstObject = token;
+            }
+            else
+            {
+              isOnState = true;
+            }
+          }
+    
+          int insertIndex = allObjects.size();
+    
+          if(allObjects.contains(firstObject))
+          {
+            insertIndex = allObjects.indexOf(firstObject);
+            allObjects.remove(insertIndex);
+          }
+          if(isOnState)
+          {
+            allObjects.addAll(insertIndex, objects);
+          }
+          else
+          {
+            newGoalList.add((String)goalList.get(index));
+          }
+        }
+    
+        for(int index = allObjects.size() - 1; index > 0; --index)
+        {
+          String goal = allObjects.get(index - 1) + " on " + allObjects.get(index);
+          newGoalList.add(goal);
+        }
+    
+        return newGoalList;
+      }
+  </pre>
+  <br>
+  次に、3.に関して、各オペレータに対して依存関係のあるオペレータを事前知識としてリストで与えて置き、
+  一つ前の探索で用いたオペレータからそのリストを取得し、それらのオペレータの探索の優先順位を上げる処理
+  を行っている。ここでいう依存関係があるとは、今回の操作としては「拾う」ものと「置く」ものの二種類に
+  分けることができるので、それぞれのオペレータに対して逆の意味を持つものとの関係を指している<br>
+  <br>
+  具体的にはPlanner::planningAGoalにおいて、マッチングにおいてオペレータを選択する前に引数に与えられた
+  一つ前のマッチングで使用した依存関係のあるオペレータがnullでなかったときに、そのオペレータからリストを
+  取得して、優先度を上げる処理を行っている。また、一つ前のオペレータを与えるための処理もこの関数で行っており、
+  マッチングが成功した際に再帰的にPlanner::planningを呼ぶときに渡している。以下が、その２点の部分が書かれた
+  部分のソースである。
+  <pre class="brush: java">
+    private int planningAGoal(String theGoal,
+                              Vector theCurrentState,
+                              Hashtable theBinding,
+                              int cPoint,
+                              Operator nextOperator) 
+    {
+        ... 
+        
+        /* 対になるオペレータの優先順位を上げる */
+        if(nextOperator != null)
+        {
+          Vector pairs = nextOperator.GetPairedOperatorList();
+          for(int i = 0; i < pairs.size(); ++i)
+          {
+            Operator pair = (Operator) pairs.get(i);
+            operators.remove(pair);
+            // 先頭に持ってく
+            operators.add(0, pair);
+          }
+        }
+
+        for (int i = cPoint; i < operators.size(); i++) 
+        {
+          Operator targetOperator = (Operator) operators.elementAt(i);
+          Operator anOperator = rename(targetOperator);
+          
+          ...
+
+          for (int j = 0; j < addList.size(); j++) 
+          {
+            ... 
+
+            if ((new Unifier()).unify(theGoal,(String) addList.elementAt(j), theBinding, isRelatedNextOperator))
+            {
+              // 具体化し、あらたなゴールを生成
+              Operator newOperator = anOperator.instantiate(theBinding);
+              Vector newGoals = (Vector) newOperator.getIfList();
+              //System.out.println(newOperator.name);
+
+              // 再帰呼び出し
+              if (planning(newGoals, theCurrentState, theBinding, targetOperator)) 
+              {
+                ... 
+              } 
+              else 
+              {
+                ... 
+              }
+              plan.removeAllElements();
+              for (int k = 0; k < orgPlan.size(); k++) {
+                plan.addElement(orgPlan.elementAt(k));
+              }
+            }
+          }
+        }
+      }
+      return -1;
+    }
+  </pre>
+  <br>
+  最後に、4.について、依存関係については3.のときと同じであるが、それに比較する必要があるとはどういうことかというと、
+  最終的な目的状態は通常オブジェクトはつかまれている状態を含んでいるため、最後に行われる操作は置く操作であると考えら
+  れる。そのため、無駄な操作を繰り返すような推論をしそうなのは拾う系の操作であるため、それらが比較が必要であるオペレ
+  ータであるということになる。<br>
+  <br>
+  具体的な実装としては、Unify::unityTokenを変更することで実現させている。比較が必要とするオペレータを探索している
+  場合に、変数の数と一つ前の段階の変数割り当てとかぶっている数をそれぞれカウントし、それらが一致した場合にマッチングを
+  失敗させるためにfalseを返させている。以下がその部分のソースである。
+  <pre class="brush: java">
+      public boolean unifyToken(String string1, String string2, Hashtable theBindings, boolean isRelatedNextOperator) 
+      {
+        ...
+    
+        Integer varTokenCount[] = {0};
+        Integer matchPreviousResultCount[] = {0};
+    
+        for (int i = 0; i < length; i++) {
+          if (!tokenMatching(buffer1[i], buffer2[i], theBindings, varTokenCount, matchPreviousResultCount)) {
+            return false;
+          }
+        }
+    
+        if(isRelatedNextOperator && varTokenCount == matchPreviousResultCount){
+          return false;
+        }
+    
+        return true;
+      }
+  </pre>
+  実際のカウントについてはUnify::tokenMatching内部で行っているのだが、割と単純な構造をしているので、説明は割愛する。
+
+  <h3> 実行例 </h3>
+  まず、元のプログラムにおいて、検証したオペレータの数と最終結果をそれぞれ出力した結果を以下に示す。<br>
+  <br>
+  <pre>
+      Step: 25
+      ***** This is a plan! *****
+      pick up B from the table
+      Place B on A
+      remove B from on top A
+      Place B on C
+      pick up A from the table
+      Place A on A
+      remove A from on top A
+      Place A on A
+      remove A from on top A
+      Place A on A
+      remove A from on top A
+      Place A on B
+  </pre>
+  次に、今回作成したプログラムにおいて、同様の出力をした結果を以下に示す。<br>
+  <br>
+  <pre>
+      Step: 8
+      ***** This is a plan! *****
+      pick up B from the table
+      Place B on C
+      pick up A from the table
+      Place A on B
+  </pre>
+  元のプログラムに関しては何回か試してみたが、オペレータの決め方に乱数を採用しているため、今回の
+  プログラムに比べて検証した数が少なくなることはあっても最適な解を出している場合はかなり少なかった。
+  逆に、今回作成したプログラムは検証する回数もそこそこ少なく、最適な解を出すことができている。<br>
+  <br>
+  よって、ある程度の改良をすることはできたといえるだろう。<br>
+  <br>
+
+<h2>課題7-3</h2>
 <!-- 課題を書く．-->
 上記7-2で改良したプランニングシステムのGUIを実装せよ．
 ブロック操作の過程をグラフィカルに可視化し，初期状態や目標状態をGUI上で変更できることが望ましい． 
@@ -870,7 +1200,7 @@ Place A on white
 <!-- 感想を書く．-->
 <!-- 例: 〜が面白かった，〜がわからなかった，〜を作ってみたい，講義・演習に関する要望，など．-->
 <p>
-課題を進めていく全体的な雰囲気だが，前回と比べて一人で解くというよりもグループで解いているといった印象が強かった．課題が段階的なものだったこともあると思うが，いい傾向なのでこの雰囲気でこれからも課題を行いたい．
+課題を進めていく全体的な雰囲気だが，前回と比べて一人で解くというよりもグループで解いているといった印象が強かった．課題が段階的なものだったこともあると思うが，いい傾向なのでこの雰囲気でこれからも課題を行いたい．次が最終課題なので，このメンバーで一つのものを作り上げるという意識を持って取り組みたいと思う．
 </p>
 <p>
 
