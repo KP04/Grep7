@@ -16,7 +16,11 @@ public class ColorAndForm {
 		Vector initialState = initInitialState();
 		Hashtable theBinding = new Hashtable();
 		Planner.plan = new Vector();
+<<<<<<< Updated upstream
 		Planner.planning(goalList, initialState, theBinding);
+=======
+		//Planner.planning(goalList, initialState, theBinding, null);
+>>>>>>> Stashed changes
 		System.out.println("***** This is a plan! *****");
 		for (int i = 0; i < Planner.plan.size(); i++) {
 			Operator op = (Operator) Planner.plan.elementAt(i);

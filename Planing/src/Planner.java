@@ -6,6 +6,11 @@ public class Planner {
 	Random rand;
 	Vector plan;
 	PlannerGUI pgui;
+<<<<<<< Updated upstream
+=======
+	ArrayList<String> process = new ArrayList<String>();
+	int stepCount = 0;
+>>>>>>> Stashed changes
 
 	public static void main(String argv[]) {
 		(new Planner()).start();
@@ -27,7 +32,7 @@ public class Planner {
 
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding, null);
+		planning(goalList, initialState, theBinding, null, true);
 
 		System.out.println("***** This is a plan! *****");
 		for (int i = 0; i < plan.size(); i++) {
@@ -44,7 +49,7 @@ public class Planner {
 		System.out.println(initialState);
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding, null);
+		planning(goalList, initialState, theBinding, null, true);
 		GraphViz gv = new GraphViz();
 		gv.addln(gv.start_graph());
 		Operator op1, op2;
@@ -74,7 +79,8 @@ public class Planner {
 	boolean planning(Vector theGoalList,
 					 Vector theCurrentState,
 					 Hashtable theBinding,
-					 Operator nextOperator) {
+					 Operator nextOperator,
+					 boolean isFirstStep) {
 		System.out.println("*** GOALS ***" + theGoalList);
 		System.out.println("*** STATE ***" + theCurrentState);
 		System.out.println("*** BIND ***" + theBinding);
@@ -115,8 +121,15 @@ public class Planner {
 
 				if (tmpPoint != -1) {
 					theGoalList.removeElementAt(0);
+					if(isFirstStep)
+					{
+						//後ろに逆順に挿入
+						String state = (String)theCurrentState.get(0);
+						theCurrentState.removeElementAt(0);
+						theCurrentState.add(theCurrentState.size() - stepCount++, state);
+					}
 					System.out.println(theCurrentState);
-					if (planning(theGoalList, theCurrentState, theBinding, nextOperator)) {
+					if (planning(theGoalList, theCurrentState, theBinding, nextOperator, isFirstStep)) {
 						System.out.println("Success !");
 						return true;
 					} else {
@@ -169,7 +182,7 @@ public class Planner {
 			if(nextOperator != null){
 				isRelatedNextOperator = nextOperator.getIsRelatedNextOperator();
 			}
-			if ((new Unifier()).unify(theGoal, aState, theBinding, isRelatedNextOperator)) {
+			if ((new Unifier()).unify(theGoal, aState, theBinding, isRelatedNextOperator, null, null, null)) {
 				return 0;
 			}
 		}
@@ -205,6 +218,8 @@ public class Planner {
 			}
 		}
 
+		int tempUniqueNum = uniqueNum;
+
 		for (int i = cPoint; i < operators.size(); i++) {
 			Operator targetOperator = (Operator) operators.elementAt(i);
 			Operator anOperator = rename(targetOperator);
@@ -229,16 +244,19 @@ public class Planner {
 			Vector addList = (Vector) anOperator.getAddList();
 
 			for (int j = 0; j < addList.size(); j++) {
-				int tempUniqueNum = uniqueNum;
 				boolean isRelatedNextOperator = false;
 				if(nextOperator != null){
 					isRelatedNextOperator = nextOperator.getIsRelatedNextOperator();
 				}
+
+				Operator newOperator = null;
+				Vector newGoals = null;
+
 				if ((new Unifier()).unify(theGoal,
-						(String) addList.elementAt(j), theBinding, isRelatedNextOperator)) {
+						(String) addList.elementAt(j), theBinding, isRelatedNextOperator, anOperator, newOperator, newGoals)) {
 					// 具体化し、あらたなゴールを生成
-					Operator newOperator = anOperator.instantiate(theBinding);
-					Vector newGoals = (Vector) newOperator.getIfList();
+					//Operator newOperator = anOperator.instantiate(theBinding);
+					//Vector newGoals = (Vector) newOperator.getIfList();
 					//System.out.println(newOperator.name);
 
 					// 何の根拠もないから、修正案件
@@ -247,7 +265,20 @@ public class Planner {
 					operators.addElement(op);
 
 					// 再帰呼び出し
-					if (planning(newGoals, theCurrentState, theBinding, targetOperator)) {
+					/*
+					 * ・案１
+					 * 		呼び出し前に近傍を検索して状態の並び替え
+					 *
+					 * ・案２
+					 * 		渡されたオペレータを使って、移動可能かを判定する
+					 *
+					 * ・案３(最有力)
+					 * 		選ばれたオペレータを使って移動可能か判定する
+					 *
+					 * 		→上記のnewGoals作成時に、ifListから判定材料だけ抜き出して
+					 * 		　動作を進める
+					 */
+					if (planning(newGoals, theCurrentState, theBinding, targetOperator, false)) {
 						newOperator = newOperator.instantiate(theBinding);
 						System.out.println(newOperator.name);
 						plan.addElement(newOperator);
@@ -293,48 +324,89 @@ public class Planner {
 		//goalList.addElement("ontable A");
 		//goalList.addElement("C on B");
 
+<<<<<<< Updated upstream
 		goalList.addElement("A on B on C");
 		Vector newGoalList = alignGoalList(goalList);
 		System.out.println(newGoalList);
 		return newGoalList;
+=======
+		 goalList.addElement("1 at ( 0 , 0 )");
+		 goalList.addElement("2 at ( 1 , 0 )");
+		 goalList.addElement("3 at ( 2 , 0 )");
+		 goalList.addElement("4 at ( 0 , 1 )");
+		 goalList.addElement("5 at ( 1 , 1 )");
+		 goalList.addElement("6 at ( 2 , 1 )");
+		 goalList.addElement("7 at ( 0 , 2 )");
+		 goalList.addElement("8 at ( 1 , 2 )");
+		 goalList.addElement("( 2 , 2 ) is clear");
+
+		/*
+		goalList.addElement("A on B");
+		goalList.addElement("B on C");
+		*/
+		//Vector newGoalList = alignGoalList(goalList);
+		//System.out.println(newGoalList);
+		return goalList;
+>>>>>>> Stashed changes
 	}
 
 	// ゴールリストを都合のいいように編集
-	private Vector alignGoalList(Vector goalList){
+	private Vector alignGoalList(Vector goalList)
+	{
+
 		Vector newGoalList = new Vector();
 		ArrayList<String> allObjects = new ArrayList<String>();
 
-		for(int index = 0; index < goalList.size(); ++index){
+		for(int index = 0; index < goalList.size(); ++index)
+		{
 			ArrayList<String> objects = new ArrayList<String>();
 			boolean isOnState = false;
 			StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
+<<<<<<< Updated upstream
 			String lastObject = "";
 			while(tokenizer.hasMoreTokens()){
+=======
+			String firstObject = "";
+			while(tokenizer.hasMoreTokens())
+			{
+>>>>>>> Stashed changes
 				String token = tokenizer.nextToken();
-				if(!token.equals("on")){
+				if(!token.equals("on"))
+				{
 					objects.add(token);
 					lastObject = token;
 				}
-				else{
+				else
+				{
 					isOnState = true;
 				}
 			}
 
 			int insertIndex = allObjects.size();
 
+<<<<<<< Updated upstream
 			if(allObjects.contains(lastObject)){
 				insertIndex = allObjects.indexOf(lastObject);
+=======
+			if(allObjects.contains(firstObject))
+			{
+				insertIndex = allObjects.indexOf(firstObject);
+>>>>>>> Stashed changes
 				allObjects.remove(insertIndex);
 			}
-			if(isOnState){
+
+			if(isOnState)
+			{
 				allObjects.addAll(insertIndex, objects);
 			}
-			else{
+			else
+			{
 				newGoalList.add((String)goalList.get(index));
 			}
 		}
 
-		for(int index = allObjects.size() - 1; index > 0; --index){
+		for(int index = allObjects.size() - 1; index > 0; --index)
+		{
 			String goal = allObjects.get(index - 1) + " on " + allObjects.get(index);
 			newGoalList.add(goal);
 		}
@@ -353,6 +425,18 @@ public class Planner {
 
 	private Vector initInitialState() {
 		Vector initialState = new Vector();
+
+		 initialState.addElement("1 at ( 1 , 0 )");
+		 initialState.addElement("2 at ( 1 , 1 )");
+		 initialState.addElement("3 at ( 2 , 0 )");
+		 initialState.addElement("4 at ( 0 , 1 )");
+		 initialState.addElement("5 at ( 1 , 2 )");
+		 initialState.addElement("6 at ( 2 , 1 )");
+		 initialState.addElement("7 at ( 0 , 2 )");
+		 initialState.addElement("8 at ( 2 , 2 )");
+		 initialState.addElement("( 0 , 0 ) is clear");
+
+		/*
 		initialState.addElement("clear A");
 		initialState.addElement("clear B");
 		initialState.addElement("clear C");
@@ -361,6 +445,7 @@ public class Planner {
 		initialState.addElement("ontable B");
 		initialState.addElement("ontable C");
 		initialState.addElement("handEmpty");
+		*/
 		return initialState;
 	}
 
@@ -376,6 +461,79 @@ public class Planner {
 	private void initOperators() {
 		operators = new Vector();
 
+		String name1 = new String("Move ?o to the right from ( ?x0 , ?y0 ) to ( ?x1 , ?y1 )");
+		 // / IF(座標の差を比べる機構が別で必要)
+		Vector ifList1 = new Vector();
+		ifList1.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		ifList1.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		ifList1.addElement(new String("equal( ?y0 , ?y1 )"));
+		ifList1.addElement(new String("dis( ?x1 , ?x0 )"));
+		// / ADD-LIST
+		Vector addList1 = new Vector();
+		addList1.addElement(new String("?o at ( ?x1 , ?y1 )"));
+		addList1.addElement(new String("( ?x0 , ?y0 ) is clear"));
+		// / DELETE-LIST
+		Vector deleteList1 = new Vector();
+		deleteList1.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		deleteList1.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		Operator operator1 = new Operator(name1, ifList1, addList1, deleteList1, false);
+		operators.addElement(operator1);
+
+		String name2 = new String("Move ?o to the left from ( ?x0 , ?y0 ) to ( ?x1 , ?y1 )");
+		 // / IF(座標の差を比べる機構が別で必要)
+		Vector ifList2 = new Vector();
+		ifList2.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		ifList2.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		ifList2.addElement(new String("equal( ?y0 , ?y1 )"));
+		ifList2.addElement(new String("dis( ?x0 , ?x1 )"));
+		// / ADD-LIST
+		Vector addList2 = new Vector();
+		addList2.addElement(new String("?o at ( ?x1 , ?y1 )"));
+		addList2.addElement(new String("( ?x0 , ?y0 ) is clear"));
+		// / DELETE-LIST
+		Vector deleteList2 = new Vector();
+		deleteList2.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		deleteList2.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		Operator operator2 = new Operator(name2, ifList2, addList2, deleteList2, false);
+		operators.addElement(operator2);
+
+		String name3 = new String("Move ?o to the upward from ( ?x0 , ?y0 ) to ( ?x1 , ?y1 )");
+		 // / IF(座標の差を比べる機構が別で必要)
+		Vector ifList3 = new Vector();
+		ifList3.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		ifList3.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		ifList3.addElement(new String("equal( ?x0 , ?x1 )"));
+		ifList3.addElement(new String("dis( ?y0 , ?y1 )"));
+		// / ADD-LIST
+		Vector addList3 = new Vector();
+		addList3.addElement(new String("?o at ( ?x1 , ?y1 )"));
+		addList3.addElement(new String("( ?x0 , ?y0 ) is clear"));
+		// / DELETE-LIST
+		Vector deleteList3 = new Vector();
+		deleteList3.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		deleteList3.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		Operator operator3 = new Operator(name3, ifList3, addList3, deleteList3, false);
+		operators.addElement(operator3);
+
+		String name4 = new String("Move ?o to the downward from ( ?x0 , ?y0 ) to ( ?x1 , ?y1 )");
+		 // / IF(座標の差を比べる機構が別で必要)
+		Vector ifList4 = new Vector();
+		ifList4.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		ifList4.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		ifList4.addElement(new String("equal( ?x0 , ?x1 )"));
+		ifList4.addElement(new String("dis( ?y1 , ?y0 )"));
+		// / ADD-LIST
+		Vector addList4 = new Vector();
+		addList4.addElement(new String("?o at ( ?x1 , ?y1 )"));
+		addList4.addElement(new String("( ?x0 , ?y0 ) is clear"));
+		// / DELETE-LIST
+		Vector deleteList4 = new Vector();
+		deleteList4.addElement(new String("?o at ( ?x0 , ?y0 )"));
+		deleteList4.addElement(new String("( ?x1 , ?y1 ) is clear"));
+		Operator operator4 = new Operator(name4, ifList4, addList4, deleteList4, false);
+		operators.addElement(operator4);
+
+		/*
 		// OPERATOR 1
 		// / NAME
 		String name1 = new String("Place ?x on ?y");
@@ -463,6 +621,7 @@ public class Planner {
 
 		operator4.addPairedOperator(operator1);
 		operator4.addPairedOperator(operator2);
+		*/
 	}
 }
 
@@ -675,15 +834,24 @@ class Unifier {
 		// vars = new Hashtable();
 	}
 
-	public boolean unify(String string1, String string2, Hashtable theBindings, boolean isRelatedNextOperator) {
+	public boolean unify(String string1,
+						 String string2,
+						 Hashtable theBindings,
+						 boolean isRelatedNextOperator,
+						 Operator anOperator,
+						 Operator newOperator,
+						 Vector newGoals)
+	{
 		Hashtable orgBindings = new Hashtable();
 		for (Enumeration e = theBindings.keys(); e.hasMoreElements();) {
 			String key = (String) e.nextElement();
 			String value = (String) theBindings.get(key);
 			orgBindings.put(key, value);
 		}
+
 		this.vars = theBindings;
-		if (unifyToken(string1, string2, theBindings, isRelatedNextOperator)) {
+
+		if (unifyToken(string1, string2, theBindings, isRelatedNextOperator) && checkObjectPos(anOperator, newOperator, newGoals, theBindings)) {
 			return true;
 		} else {
 			// 失敗したら元に戻す．
@@ -740,6 +908,61 @@ class Unifier {
 
 		if(isRelatedNextOperator && varTokenCount == matchPreviousResultCount){
 			return false;
+		}
+
+		return true;
+	}
+
+	private boolean checkObjectPos(Operator anOperator, Operator newOperator, Vector newGoals, Hashtable theBinding)
+	{
+		if(anOperator == null || newOperator == null || newGoals == null)
+		{
+			return true;
+		}
+
+		newOperator = anOperator.instantiate(theBinding);
+		newGoals = (Vector) newOperator.getIfList();
+
+		for(int goalIndex = 0, deleteCount = 0; goalIndex < newGoals.size(); ++goalIndex)
+		{
+			StringTokenizer tokens = new StringTokenizer((String)newGoals.get(goalIndex - deleteCount));
+			ArrayList<Integer> values = new ArrayList<Integer>();
+
+			while(tokens.hasMoreTokens())
+			{
+				String token = tokens.nextToken();
+
+				if(token.startsWith("?"))
+				{
+					values.add((int)theBinding.get(token));
+				}
+			}
+
+			String funcName = tokens.nextToken();
+			if(funcName.indexOf("equal") != -1)
+			{
+				newGoals.remove(goalIndex - deleteCount);
+				deleteCount++;
+
+				if(values.get(0) == values.get(1))
+				{
+					continue;
+				}
+
+				return false;
+			}
+			else if(funcName.indexOf("dis") != -1)
+			{
+				newGoals.remove(goalIndex - deleteCount);
+				deleteCount++;
+
+				if(values.get(0) - values.get(1) == 1)
+				{
+					continue;
+				}
+
+				return false;
+			}
 		}
 
 		return true;
