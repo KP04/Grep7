@@ -6,15 +6,18 @@ public class Planner {
 	Vector plan;
 	PlannerGUI pgui;
 	ArrayList<String> process = new ArrayList<String>();
+	ArrayList<Integer> checkGoalCounts = new ArrayList<Integer>();
 
 	public static void main(String argv[]) {
 		(new Planner()).start();
 	}
 
 	Planner() {
+		checkGoalCounts.add(0);
 	}
 
 	Planner(PlannerGUI pgui) {
+		checkGoalCounts.add(0);
 		this.pgui = pgui;
 	}
 
@@ -25,7 +28,7 @@ public class Planner {
 
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding, null);
+		planning(goalList, initialState, theBinding, null, 0);
 
 		System.out.println("***** This is a plan! *****");
 		for (int i = 0; i < plan.size(); i++) {
@@ -42,7 +45,7 @@ public class Planner {
 		System.out.println(initialState);
 		Hashtable theBinding = new Hashtable();
 		plan = new Vector();
-		planning(goalList, initialState, theBinding, null);
+		planning(goalList, initialState, theBinding, null, 0);
 		GraphViz gv = new GraphViz();
 		gv.addln(gv.start_graph());
 		Operator op1, op2;
@@ -69,20 +72,26 @@ public class Planner {
 	boolean planning(Vector theGoalList,
 					 Vector theCurrentState,
 					 Hashtable theBinding,
-					 Operator nextOperator) {
+					 Operator nextOperator,
+					 Integer countIndex) {
 		System.out.println("*** GOALS ***" + theGoalList);
 		System.out.println("*** STATE ***" + theCurrentState);
 		System.out.println("*** BIND ***" + theBinding);
-		if (theGoalList.size() == 1) {
+		if (theGoalList.size() == checkGoalCounts.get(countIndex)) {
+			checkGoalCounts.remove(checkGoalCounts.size() - 1);
+			return true;
+			/*
 			String aGoal = (String) theGoalList.elementAt(0);
 			if (planningAGoal(aGoal, theCurrentState, theBinding, 0, nextOperator) != -1) {
 				return true;
 			} else {
 				return false;
 			}
+			*/
 		} else {
 			// サブゴールの先頭を取り出し
 			String aGoal = (String) theGoalList.elementAt(0);
+			theCurrentState = alignStateList(aGoal, theCurrentState);
 
 			// おそらく check point. ゴール状態を満たすまでに探索したオペレータのインデックスをtepPointから更新しつつ保持
 			int cPoint = 0;
@@ -109,9 +118,10 @@ public class Planner {
 				System.out.println("tmpPoint: " + tmpPoint);
 
 				if (tmpPoint != -1) {
-					theGoalList.removeElementAt(0);
+					String tempGoal = (String)theGoalList.remove(0);
+					theGoalList.add(theGoalList.size(), tempGoal);
 					System.out.println(theCurrentState);
-					if (planning(theGoalList, theCurrentState, theBinding, nextOperator)) {
+					if (planning(theGoalList, theCurrentState, theBinding, nextOperator, countIndex)) {
 						System.out.println("Success !");
 						return true;
 					} else {
@@ -165,6 +175,8 @@ public class Planner {
 				isRelatedNextOperator = nextOperator.getIsRelatedNextOperator();
 			}
 			if ((new Unifier()).unify(theGoal, aState, theBinding, isRelatedNextOperator)) {
+				int index = checkGoalCounts.size() - 1;
+				checkGoalCounts.set(index, checkGoalCounts.get(index) + 1);
 				return 0;
 			}
 		}
@@ -227,15 +239,18 @@ public class Planner {
 					// 具体化し、あらたなゴールを生成
 					Operator newOperator = anOperator.instantiate(theBinding);
 					Vector newGoals = (Vector) newOperator.getIfList();
+					checkGoalCounts.add(0);
 					//System.out.println(newOperator.name);
 
 					// 再帰呼び出し
-					if (planning(newGoals, theCurrentState, theBinding, targetOperator)) {
+					if (planning(newGoals, theCurrentState, theBinding, targetOperator, checkGoalCounts.size() - 1)) {
 						newOperator = newOperator.instantiate(theBinding);
 						System.out.println(newOperator.name);
 						plan.addElement(newOperator);
 						theCurrentState = newOperator
 								.applyState(theCurrentState);
+						int index = checkGoalCounts.size() - 1;
+						checkGoalCounts.set(index, 1);
 						return i + 1;
 					} else {
 						// 失敗したら元に戻す．
@@ -270,44 +285,101 @@ public class Planner {
 		return newOperator;
 	}
 
-	private Vector initGoalList() {
-		Vector goalList = new Vector();
-
-		goalList.addElement("A on B");
-		goalList.addElement("B on C");
-		Vector newGoalList = alignGoalList(goalList);
-		System.out.println(newGoalList);
-		return newGoalList;
-	}
-
 	// ゴールリストを都合のいいように編集
-	private Vector alignGoalList(Vector goalList){
+	private Vector alignGoalList(Vector goalList)
+	{
 		Vector newGoalList = new Vector();
-		ArrayList<String> allObjects = new ArrayList<String>();
+		ArrayList<ArrayList<String>> allObjects = new ArrayList<ArrayList<String>>();
 
+		for(int i = 0; i < goalList.size(); ++i)
+		{
+			StringTokenizer tokens1 = new StringTokenizer((String)goalList.get(i));
+			String firstObject1 = "";
+			String lastObject1 = "";
+			String goal1 = (String)goalList.get(i);
+
+			if(tokens1.hasMoreTokens())
+				firstObject1 = tokens1.nextToken();
+			if(tokens1.hasMoreTokens() && !tokens1.nextToken().equals("on"))
+				continue;
+			if(tokens1.hasMoreTokens())
+			{
+				lastObject1 = tokens1.nextToken();
+			}
+			else
+				continue;
+
+			for(int j = 0; j < goalList.size(); ++j)
+			{
+				String goal2 = (String)goalList.get(j);
+
+				if(goal1.equals(goal2))
+					continue;
+
+				StringTokenizer tokens2 = new StringTokenizer((String)goalList.get(j));
+				String firstObject2 = "";
+				String lastObject2 = "";
+
+				if(tokens2.hasMoreTokens())
+					firstObject2 = tokens2.nextToken();
+				if(tokens2.hasMoreTokens() && !tokens2.nextToken().equals("on"))
+					continue;
+				if(tokens2.hasMoreTokens())
+				{
+					lastObject2 = tokens2.nextToken();
+				}
+				else
+					continue;
+
+				if(firstObject2.equals(lastObject1))
+				{
+					String tempGoal = (String)goalList.remove(j);
+					goalList.add(goalList.indexOf(goal1), tempGoal);
+				}
+				else if(lastObject2.equals(firstObject1))
+				{
+					String tempGoal = (String)goalList.remove(j);
+					goalList.add(goalList.indexOf(goal1)+1, tempGoal);
+				}
+			}
+		}
+
+		return goalList;
+
+		/*
 		for(int index = 0; index < goalList.size(); ++index){
 			ArrayList<String> objects = new ArrayList<String>();
 			boolean isOnState = false;
 			StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
 			String firstObject = "";
+			String lastObject =  "";
+
 			while(tokenizer.hasMoreTokens()){
 				String token = tokenizer.nextToken();
 				if(!token.equals("on")){
 					objects.add(token);
 					if(firstObject.equals(""))
 						firstObject = token;
+					else if(lastObject.equals(""))
+						lastObject = token;
 				}
 				else{
 					isOnState = true;
 				}
 			}
 
-			int insertIndex = allObjects.size();
+			int insertIndex = 0;
+
+			for(ArrayList<String> list : allObjects)
+			{
+
+			}
 
 			if(allObjects.contains(firstObject)){
 				insertIndex = allObjects.indexOf(firstObject);
 				allObjects.remove(insertIndex);
 			}
+
 			if(isOnState){
 				allObjects.addAll(insertIndex, objects);
 			}
@@ -321,6 +393,59 @@ public class Planner {
 			newGoalList.add(goal);
 		}
 
+		return newGoalList;
+		*/
+	}
+
+	private Vector alignStateList(String goal, Vector stateList)
+	{
+		StringTokenizer tokens = new StringTokenizer(goal);
+
+		while(tokens.hasMoreTokens())
+		{
+			Vector priorityStateList = new Vector();
+
+			String token = tokens.nextToken();
+
+			if(!token.equals("on") && !tokens.equals("ontable"))
+			{
+				for(int index = 0, delete = 0; index - delete < stateList.size(); ++index)
+				{
+					String state = (String)stateList.get(index - delete);
+					StringTokenizer stateTokens = new StringTokenizer(state);
+					while(stateTokens.hasMoreTokens())
+					{
+						if(stateTokens.nextToken().equals(token))
+						{
+							stateList.remove(state);
+							priorityStateList.add(state);
+							++delete;
+							break;
+						}
+					}
+				}
+			}
+
+			stateList.addAll(0, priorityStateList);
+		}
+
+		return stateList;
+	}
+
+	private Vector initGoalList() {
+		Vector goalList = new Vector();
+
+		goalList.addElement("ontable A");
+		goalList.addElement("ontable B");
+		goalList.addElement("ontable C");
+
+		/*
+		goalList.addElement("D on E");
+		goalList.addElement("A on B");
+		goalList.addElement("C on D");
+		*/
+		Vector newGoalList = alignGoalList(goalList);
+		System.out.println(newGoalList);
 		return newGoalList;
 	}
 
@@ -337,10 +462,10 @@ public class Planner {
 		Vector initialState = new Vector();
 		initialState.addElement("clear A");
 		initialState.addElement("clear B");
-		initialState.addElement("clear C");
+		initialState.addElement("B on C");
 
 		initialState.addElement("ontable A");
-		initialState.addElement("ontable B");
+		//initialState.addElement("ontable B");
 		initialState.addElement("ontable C");
 		initialState.addElement("handEmpty");
 		return initialState;
@@ -357,6 +482,7 @@ public class Planner {
 
 	private void initOperators() {
 		operators = new Vector();
+
 
 		// OPERATOR 1
 		// / NAME
