@@ -12,16 +12,16 @@ import javax.swing.*;
 public class PlannerGUI implements ActionListener {
 	JFrame frame;
 	Container contentPane;
-	
+
 	JButton load,save,run;
 	JLabel fileNameLabel1,fileNameLabel2,opeLabel;
 	JPanel btnPanel;
 	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea,opeTextArea,planTextArea;
 	JScrollPane initialScrollPane,goalScrollPane,imgScrollPane;
-	
+
 	Runner runner;
 	int counter = 0;
-	
+
 	PlannerGUI() {
 		frame = new JFrame();
 
@@ -30,15 +30,11 @@ public class PlannerGUI implements ActionListener {
 		frame.setSize(890, 353);
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(null);
-<<<<<<< Updated upstream
-		//frame.setResizable(false);
-=======
 		frame.setBounds(0,0,890,353);
 		frame.setResizable(false);
->>>>>>> Stashed changes
 
 		contentPane = frame.getContentPane();
-		
+
 		fileNameLabel1 = new JLabel("Initial State Filename:");
 		fileNameLabel1.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel1.setPreferredSize(new Dimension(500,32));
@@ -51,7 +47,7 @@ public class PlannerGUI implements ActionListener {
 		initialScrollPane = new JScrollPane(initialTextArea);
 		initialScrollPane.setPreferredSize(new Dimension(260,200));
 		initialScrollPane.setBounds(0,64,260,200);
-		
+
 		fileNameLabel2 = new JLabel("Goal Filename:");
 		fileNameLabel2.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel2.setPreferredSize(new Dimension(500,32));
@@ -64,7 +60,7 @@ public class PlannerGUI implements ActionListener {
 		goalScrollPane = new JScrollPane(goalTextArea);
 		goalScrollPane.setPreferredSize(new Dimension(260,200));
 		goalScrollPane.setBounds(280,64,260,200);
-		
+
 		load = new JButton("Load");
 		load.addActionListener(this);
 		save = new JButton("Save");
@@ -78,14 +74,6 @@ public class PlannerGUI implements ActionListener {
 		btnPanel.add(load);
 		btnPanel.add(save);
 		btnPanel.add(run);
-<<<<<<< Updated upstream
-		
-		imgLabel = new JLabel();
-		imgScrollPane = new JScrollPane(imgLabel);
-		imgScrollPane.setPreferredSize(new Dimension(396,742));
-		imgScrollPane.setBounds(540,0,396,742);
-		
-=======
 
 		planTextArea = new JTextArea();
 		planTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
@@ -93,7 +81,6 @@ public class PlannerGUI implements ActionListener {
 		imgScrollPane.setPreferredSize(new Dimension(350,328));
 		imgScrollPane.setBounds(540,0,350,328);
 
->>>>>>> Stashed changes
 		opeLabel = new JLabel("Operation:");
 		opeLabel.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeLabel.setPreferredSize(new Dimension(150,32));
@@ -102,16 +89,7 @@ public class PlannerGUI implements ActionListener {
 		opeTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeTextArea.setPreferredSize(new Dimension(390,32));
 		opeTextArea.setBounds(150,296,390,32);
-<<<<<<< Updated upstream
-		
-		moveTextArea = new JTextArea("");
-		moveTextArea.setFont(new Font("Arial", Font.PLAIN, 15));
-		moveTextArea.setPreferredSize(new Dimension(540,412));
-		moveTextArea.setBounds(0,338,540,412);
-		
-=======
 
->>>>>>> Stashed changes
 		contentPane.add(fileNameLabel1);
 		contentPane.add(fileNameTextArea1);
 		contentPane.add(initialScrollPane);
@@ -122,18 +100,13 @@ public class PlannerGUI implements ActionListener {
 		contentPane.add(imgScrollPane);
 		contentPane.add(opeLabel);
 		contentPane.add(opeTextArea);
-<<<<<<< Updated upstream
-		contentPane.add(moveTextArea);
-		
-=======
 
->>>>>>> Stashed changes
 		frame.setVisible(true);
 	}
-	
+
 	public void actionPerformed(ActionEvent event){
 		JButton button = (JButton)event.getSource();
-		
+
 		if(button == load){
 			/*
 			 * FileLoading.fileLoading(fileNameTextArea.getText()でファイルのテキスト(リスト)を受け取り、
@@ -161,10 +134,10 @@ public class PlannerGUI implements ActionListener {
 			//runner.start(); //実行
 		}
 	}
-	
+
 	/**
 	 * ファイルから読み込んだテキストを1行ずつ格納したString型のリストをString型に変換するメソッド
-	 * 
+	 *
 	 * @param data
 	 * @return リストdataをString型に変換したもの
 	 */
@@ -178,7 +151,7 @@ public class PlannerGUI implements ActionListener {
 
 		return buffer;
 	}
-	
+
 	public static void main(String[] arg){
 		new PlannerGUI();
 	}
@@ -187,16 +160,12 @@ public class PlannerGUI implements ActionListener {
 class Runner extends Thread{
 	PlannerGUI pgui;
 	Planner p;
-<<<<<<< Updated upstream
-	
-=======
 	ArrayList<String> initialState = new ArrayList<String>();
 	ArrayList<String> move = new ArrayList<String>();
 	HashMap<String,Integer> state = new HashMap<String,Integer>();
 	JTextArea ta;
 	int size = 0;
 
->>>>>>> Stashed changes
 	Runner(PlannerGUI pgui){
 		this.pgui = pgui;
 		this.p = new Planner(this.pgui);
@@ -205,22 +174,17 @@ class Runner extends Thread{
 		 for(int i=0; i<iList.length; i++){
 			 initialState.add(iList[i]);
 		 }
-		 
+
 		 createInitialState(state);
-			
+
 		 Show s = new Show(this);
 		 ta = s.moveText;
 		 ta.setText(pgui.writeBuffer(move));
 	}
-	
-	
+
+
 	public void run(){
 
-<<<<<<< Updated upstream
-		runPlanner();
-		
-=======
->>>>>>> Stashed changes
 		try{
 			 move(p.process);
 		}
@@ -228,7 +192,7 @@ class Runner extends Thread{
 			System.out.println(e);
 		}
 	}
-	
+
 	public void runPlanner(){
 		p.startWithGUI();
 
@@ -245,77 +209,48 @@ class Runner extends Thread{
 		for(int i=0; i<p.process.size(); i++){
 			s += Integer.toString(i+1)+":"+p.process.get(i) + "\n";
 		}
-		
+
 		pgui.planTextArea.setText(s);
 	}
-	
-	
+
+
 	public void move(ArrayList<String> process){
 
 		String blank = "　　　　　";
 		String stick = "　　／　　";
 		String hand = "／／／／／";
 
-<<<<<<< Updated upstream
-		ArrayList<String> move = new ArrayList<String>();
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
-		move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
-		move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
-		move.add("　　　　　＿　Ａ　＿　　　　　＿　Ｂ　＿　　　　　＿　Ｃ　＿　　　　　");
-		move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
-		move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
-		move.add("／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／");
-		
-		pgui.moveTextArea.setText(pgui.writeBuffer(move));
-		
-=======
 		//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 		//ta.setText(pgui.writeBuffer(move));
-		
+
 		int c,n,d;
 		StringBuilder sb;
 
-
->>>>>>> Stashed changes
 		for(int i=0; i<process.size(); i++){
 			pgui.opeTextArea.setText((i+1)+":"+process.get(i));
 			String ope = process.get(i);
 			_Unifier unifier = new _Unifier();
-			
+
 			if(ope.contains("Place")){
 				unifier.unify(ope, "Place ?x on ?y");
 				c = state.get((unifier.vars.get("?y")));
 				int[] num = new int[size];
-				
+
 				for(int j=0; j<size; j++){
 					num[j] = 0;
 				}
-				
+
 				for(int j=0; j<c-1; j++){
 					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
 						num[k]++;
 					}
 				}
-				
+
 				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
 				int yRen = 5+10*(state.get(unifier.vars.get("?y"))-1);
 				int Col = 5*(size+1-state.get(Integer.toString(state.get(unifier.vars.get("?y")))));
 				int len = Math.abs(yRen-xRen);
-				
+
 				//横移動
 				for(int j=0; j<len; j++){
 					if(yRen>xRen){
@@ -332,12 +267,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-<<<<<<< Updated upstream
-				
-=======
-
 				//縦移動
->>>>>>> Stashed changes
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
 						n = k-1;
@@ -381,7 +311,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
 						n = k-2;
@@ -411,7 +341,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				state.put(unifier.vars.get("?x"), state.get(unifier.vars.get("?y")));
 				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-size-1)+1);
 			}
@@ -419,11 +349,11 @@ class Runner extends Thread{
 				unifier.unify(ope, "remove ?x from on top ?y");
 				c = state.get(unifier.vars.get("?x"));
 				int[] num = new int[size];
-				
+
 				for(int j=0; j<size; j++){
 					num[j] = 0;
 				}
-				
+
 				for(int j=0; j<c-1; j++){
 					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
 						num[k]++;
@@ -453,7 +383,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
 						n = k-3;
@@ -463,7 +393,7 @@ class Runner extends Thread{
 						else{
 							d = Ren;
 						}
-						
+
 						if(k != j+6){
 							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+5));
 						}
@@ -472,7 +402,7 @@ class Runner extends Thread{
 						}
 						sb = new StringBuilder(move.get(k-1));
 						n++;
-						
+
 						if(k != j+5){
 							if(n%5==0 && n!=0){
 								move.set(k-1, sb.insert(d,move.get(k).substring(Ren+num[size-n/5],Ren+num[size-n/5]+5)).toString());
@@ -512,11 +442,11 @@ class Runner extends Thread{
 				unifier.unify(ope, "pick up ?x from the table");
 				c = state.get((unifier.vars.get("?x")));
 				int[] num = new int[size];
-				
+
 				for(int j=0; j<size; j++){
 					num[j] = 0;
 				}
-				
+
 				for(int j=0; j<c-1; j++){
 					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
 						num[k]++;
@@ -547,7 +477,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
 						n = k-3;
@@ -557,7 +487,7 @@ class Runner extends Thread{
 						else{
 							d = Ren;
 						}
-						
+
 						if(k != j+6){
 							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+5));
 						}
@@ -606,25 +536,21 @@ class Runner extends Thread{
 				unifier.unify(ope, "put ?x down on the table");
 				c = alphToInt(unifier.vars.get("?x"));
 				int[] num = new int[size];
-				
+
 				for(int j=0; j<size; j++){
 					num[j] = 0;
 				}
-				
+
 				for(int j=0; j<c-1; j++){
 					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
 						num[k]++;
 					}
 				}
-<<<<<<< Updated upstream
-				
-=======
 
 				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
 				int yRen = 10*alphToInt(unifier.vars.get("?x"))-5;
 				int Col = 5*(size+1);
 
->>>>>>> Stashed changes
 				int len = Math.abs(yRen-xRen);
 
 				for(int j=0; j<len; j++){
@@ -642,7 +568,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
 						n = k-1;
@@ -686,7 +612,7 @@ class Runner extends Thread{
 					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
 					ta.setText(pgui.writeBuffer(move));
 				}
-				
+
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
 						n = k-2;
@@ -723,7 +649,7 @@ class Runner extends Thread{
 		}
 
 	}
-	
+
 	public void createInitialState(HashMap<String,Integer>state){
 		_Unifier unifier = new _Unifier();
 
@@ -736,7 +662,7 @@ class Runner extends Thread{
 			}
 			unifier = new _Unifier();
 		}
-		
+
 		for(int i=0; i<size; i++){
 			state.put(Integer.toString(i+1), 0);
 		}
@@ -747,7 +673,7 @@ class Runner extends Thread{
 			wide += "　";
 			yuka += "■■";
 		}
-		
+
 		for(int i=0; i<5*(size+1); i++){
 			move.add(wide);
 		}
@@ -770,24 +696,19 @@ class Runner extends Thread{
 					}
 					unifier2 = new _Unifier();
 				}
-<<<<<<< Updated upstream
-				
-				state.put(unifier.vars.get("?x"), (yRen-5)/10);
-				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
-=======
 				build(unifier.vars,state);
 			}
 			unifier = new _Unifier();
 		}
 	}
-	
+
 	public void build(HashMap<String,String> vars, HashMap<String,Integer> state){
 
 		_Unifier unifier1 = new _Unifier();
 		_Unifier unifier2 = new _Unifier();
 		String alph = vars.get("?x");
 		int location;
-		
+
 		for(int i=0; i<initialState.size(); i++){
 			if(unifier1.unify(initialState.get(i), "?x on "+alph)){
 				location = state.get(alph);
@@ -808,26 +729,26 @@ class Runner extends Thread{
 
 		}
 	}
-	
+
 	public int alphToInt(String alph){
 		char[] c = alph.toCharArray();
 		return c[0]-64;
 	}
-	
+
 	public void draw(String alph, HashMap<String,Integer>state, String shape){
 		int x = state.get(alph);
 		int y = state.get(Integer.toString(state.get(alph)));
 		int Ren = 10*(x-1)+5;
 		int Col = 5*(size+1-y);
 		int n=0;
-		
+
 		for(int i=0; i<5; i++){
 			if(i!=2){
 				move.set(Col+i, move.get(Col+i).substring(0,Ren)+move.get(Col+i).substring(Ren+5));
 			}
 			else{
 				int c = state.get(alph);
-				
+
 				for(int j=1; j<c; j++){
 					if(state.get(Integer.toString(j))>=state.get(Integer.toString(c))){
 						n++;
@@ -836,13 +757,12 @@ class Runner extends Thread{
 				move.set(Col+i, move.get(Col+i).substring(0,Ren+n)+move.get(Col+i).substring(Ren+n+6));
 			}
 		}
-		
-		ArrayList<String> shapeList = shapeList(shape,alph); 
+
+		ArrayList<String> shapeList = shapeList(shape,alph);
 		for(int i=0; i<5; i++){
 			StringBuilder sb = new StringBuilder(move.get(Col+i));
 			if(i!=2){
 				move.set(Col+i,sb.insert(Ren,shapeList.get(i)).toString());
->>>>>>> Stashed changes
 			}
 			else{
 				int c = state.get(alph);
@@ -855,9 +775,9 @@ class Runner extends Thread{
 				move.set(Col+i,sb.insert(Ren+n,shapeList.get(i)+s).toString());
 			}
 		}
-		
+
 	}
-	
+
 	public String largeChar(String alph){
 		switch(alph){
 		case "A"   : return  "Ａ" ;
@@ -886,13 +806,13 @@ class Runner extends Thread{
         case "X"   : return  "Ｘ" ;
         case "Y"   : return  "Ｙ" ;
         case "Z"   : return  "Ｚ" ;
-        default : return "error"; 
+        default : return "error";
 		}
 	}
-	
+
 	public ArrayList<String> shapeList(String shape, String alph){
 		ArrayList<String> shapeList = new ArrayList<String>();
-		
+
 		switch(shape){
 		case "square":shapeList.add("＿＿＿＿＿");
 						shapeList.add("＿　　　＿");
@@ -914,7 +834,7 @@ class Runner extends Thread{
 		}
 		return shapeList;
 	}
-	
+
 	public void sleep(){
 		try{
 			Thread.sleep(50);
