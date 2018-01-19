@@ -1,7 +1,14 @@
-clear A
-clear B
 clear C
+C on B
+clear A
 ontable A
 ontable B
-ontable C
+clear E
+E on D
+ontable D
 handEmpty
+A is square
+B is circle
+C is triangle
+D is circle
+E is triangle

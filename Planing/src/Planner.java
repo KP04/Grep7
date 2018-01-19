@@ -71,7 +71,7 @@ public class Planner {
 		String repesentationType = "dot";
 		pgui.counter++;
 		File out = new File("tmp/simple"+ pgui.counter + "." + type);
-		gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
+		//gv.writeGraphToFile(gv.getGraph(gv.getDotSource(), type, repesentationType), out);
 	}
 
 	boolean planning(Vector theGoalList,
@@ -562,6 +562,7 @@ public class Planner {
 
 		goalList.addElement("A on B");
 		goalList.addElement("B on C");
+		goalList.addElement("C on D");
 		//goalList.addElement("B on C");
 		//goalList.addElement("A on B");
 		//goalList.addElement("D on A");
@@ -591,11 +592,13 @@ public class Planner {
 		initialState.addElement("clear A");
 		initialState.addElement("clear B");
 		initialState.addElement("clear C");
+		initialState.addElement("clear D");
 
 
 		initialState.addElement("ontable A");
 		initialState.addElement("ontable B");
 		initialState.addElement("ontable C");
+		initialState.addElement("ontable D");
 		initialState.addElement("handEmpty");
 		return initialState;
 	}

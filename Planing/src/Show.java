@@ -49,7 +49,6 @@ public class Show implements ActionListener{
 		JButton button = (JButton)event.getSource();
 		
 		if(button == start){
-			System.out.println("test");
 			runner.start();
 		}
 	}

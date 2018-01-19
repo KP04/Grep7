@@ -207,6 +207,7 @@ class Runner extends Thread{
 		*/
 		String s = "";
 		for(int i=0; i<p.process.size(); i++){
+			System.out.println((i+1)+":"+p.process.get(i));
 			s += Integer.toString(i+1)+":"+p.process.get(i) + "\n";
 		}
 
