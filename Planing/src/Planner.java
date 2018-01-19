@@ -392,14 +392,19 @@ public class Planner {
 			String firstObject1 = "";
 			String lastObject1 = "";
 			String goal1 = (String)goalList.get(i);
+			
+			if(newGoalList.size() == 0)
+			{
+				newGoalList.add(goal1);
+				continue;
+			}
 
 			if(tokens1.hasMoreTokens())
 				firstObject1 = tokens1.nextToken();
 			if(firstObject1.equals("clear") || firstObject1.equals("ontable"))
 			{
 				goalList.set(i, "ontable " + tokens1.nextToken());
-				goalList.remove(i);
-				goalList.add(goalList.size());
+				newGoalList.add(goal1);
 				continue;
 			}
 			if(tokens1.hasMoreTokens() && !tokens1.nextToken().equals("on"))
@@ -411,43 +416,36 @@ public class Planner {
 			else
 				continue;
 
-			for(int j = 0; j < goalList.size(); ++j)
+			for(int j = 0; j < newGoalList.size(); ++j)
 			{
-				String goal2 = (String)goalList.get(j);
-
-				if(goal1.equals(goal2))
-					continue;
-
-				StringTokenizer tokens2 = new StringTokenizer((String)goalList.get(j));
-				String firstObject2 = "";
-				String lastObject2 = "";
-
-				if(tokens2.hasMoreTokens())
-					firstObject2 = tokens2.nextToken();
-				if(tokens2.hasMoreTokens() && !tokens2.nextToken().equals("on"))
-					continue;
-				if(tokens2.hasMoreTokens())
+				String goal2 = (String)newGoalList.get(j);
+				StringTokenizer tokens2 = new StringTokenizer(goal2);
+				String firstObject2 = tokens2.nextToken();
+				String lastObject2;
+				
+				if(tokens2.hasMoreElements() && tokens2.nextElement().equals("on"))
 				{
 					lastObject2 = tokens2.nextToken();
 				}
 				else
+				{
 					continue;
-
-				if(firstObject2.equals(lastObject1))
-				{
-					String tempGoal = (String)goalList.remove(j);
-					goalList.add(goalList.indexOf(goal1), tempGoal);
 				}
-				else if(lastObject2.equals(firstObject1))
+
+				if(firstObject1.equals(lastObject2))
 				{
-					String tempGoal = (String)goalList.remove(j);
-					goalList.add(goalList.indexOf(goal1)+1, tempGoal);
+					newGoalList.add(j, goal1);
+					break;
+				}
+				else if(lastObject1.equals(firstObject2))
+				{
+					newGoalList.add(j+1, goal1);
 				}
 			}
 		}
 
 		String temp = "";
-
+		
 		for(int i = 0, j = 0; i < goalList.size(); ++i)
 		{
 			String lowerObj = "";
@@ -471,7 +469,7 @@ public class Planner {
 			temp = topObj;
 		}
 
-		return goalList;
+		return newGoalList;
 
 		/*
 		for(int index = 0; index < goalList.size(); ++index){
@@ -584,7 +582,7 @@ public class Planner {
 		 for(int i=0; i<gList.length; i++){
 			 goalList.addElement(gList[i]);
 		 }
-		 return goalList;
+		 return alignGoalList(goalList);
 	}
 
 	private Vector initInitialState() {
