@@ -133,7 +133,7 @@ public class Planner {
 					else
 					{
 						theGoalList.add(0, tempGoal);
-						//subGoalList.clear();
+						subGoalList.remove(0);
 					}
 					System.out.println(theCurrentState);
 					if (planning(theGoalList, theCurrentState, theBinding, nextOperator, false, subGoalList)) {
@@ -229,14 +229,16 @@ public class Planner {
 
 		StringTokenizer tokens = new StringTokenizer(theGoal);
 		String firstObject = tokens.nextToken();
-		
+
 		if(subGoalList.size() != 0)
 		{
-			theGoal = subGoalList.remove(0);
+			theGoal = subGoalList.get(0);
+			System.out.println("***" + theGoal);
 		}
 		else if(firstObject.equals("ontable") || tokens.nextToken().equals("on"))
 		{
-			theGoal = makeSubGoal(theGoal, theGoalList, subGoalList);
+			theGoal = makeSubGoal(theGoal, theGoalList, theCurrentState, subGoalList);
+			System.out.println("***" + theGoal);
 		}
 
 		for (int i = cPoint; i < operators.size(); i++) {
@@ -320,14 +322,15 @@ public class Planner {
 		uniqueNum = uniqueNum + 1;
 		return newOperator;
 	}
-	
-	private String makeSubGoal(String theGoal, Vector goalList, ArrayList<String> subGoalList)
+
+	private String makeSubGoal(String theGoal, Vector goalList, Vector stateList, ArrayList<String> subGoalList)
 	{
+		//stateList内にはtheGoalはないと仮定
 		String goal = theGoal;
 		StringTokenizer tokens = new StringTokenizer(goal);
 		String firstObject = tokens.nextToken();
 		String lastObject;
-		
+
 		if(firstObject.equals("ontable") || tokens.nextToken().equals("on"))
 		{
 			lastObject = tokens.nextToken();
@@ -336,7 +339,44 @@ public class Planner {
 		{
 			return goal;
 		}
-		
+
+		if(!stateList.contains("clear " + lastObject))
+		{
+			for(int i = 0; i < stateList.size(); ++i)
+			{
+				String state = (String)stateList.get(i);
+				if(state.indexOf("on " + lastObject) != -1)
+				{
+					StringTokenizer stateTokens = new StringTokenizer(state);
+					String obj = stateTokens.nextToken();
+					goal = "ontable " + obj;
+					lastObject = obj;
+					subGoalList.add(0, goal);
+					i = -1;
+				}
+			}
+		}
+
+		if(!firstObject.equals("ontable") && !stateList.contains("clear " + firstObject))
+		{
+			for(int i = 0; i < stateList.size(); ++i)
+			{
+				String state = (String)stateList.get(i);
+				if(state.indexOf("on " + firstObject) != -1)
+				{
+					StringTokenizer stateTokens = new StringTokenizer(state);
+					String obj = stateTokens.nextToken();
+					goal = "ontable " + obj;
+					firstObject = obj;
+					subGoalList.add(0, goal);
+					i = -1;
+				}
+			}
+		}
+
+		if(subGoalList.size() != 0)
+			return subGoalList.get(0);
+
 		return goal;
 	}
 
@@ -405,14 +445,14 @@ public class Planner {
 				}
 			}
 		}
-		
+
 		String temp = "";
-		
+
 		for(int i = 0, j = 0; i < goalList.size(); ++i)
 		{
 			String lowerObj = "";
 			String topObj = "";
-			
+
 			StringTokenizer tokens = new StringTokenizer((String)goalList.get(i));
 			topObj = tokens.nextToken();
 			if(!tokens.hasMoreTokens() || !tokens.nextToken().equals("on"))
@@ -420,14 +460,14 @@ public class Planner {
 				continue;
 			}
 			lowerObj = tokens.nextToken();
-			
+
 			String goal = "ontable " + lowerObj;
-			
+
 			if(!temp.equals(lowerObj) && !goalList.contains(goal))
 			{
 				goalList.add(i, goal);
 			}
-			
+
 			temp = topObj;
 		}
 
@@ -553,9 +593,11 @@ public class Planner {
 		initialState.addElement("A on B");
 		initialState.addElement("B on C");
 		initialState.addElement("C on D");
+		initialState.addElement("D on E");
+		initialState.addElement("E on F");
 		initialState.addElement("clear A");
 
-		initialState.addElement("ontable D");
+		initialState.addElement("ontable F");
 		//initialState.addElement("ontable B");
 		//initialState.addElement("ontable C");
 		initialState.addElement("handEmpty");
