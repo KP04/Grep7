@@ -38,7 +38,7 @@
 <body>
 <header>
   <!-- グループ番号を書く．-->
-  <h1>グループ1</h1>
+  <h1>グループ4</h1>
 
   <!-- 目次生成用 -->
   <nav id="outline"></nav>
@@ -47,58 +47,507 @@
 <!-- グループ全員の名前, 学籍番号を書き，個人作成書類へのリンクを張る -->
 <h2>メンバー</h2>
 <ul>
-<li><a href="../../../../ckb15000/workspace/kprep/repX/index.html">名工大輔 24115000 </a>
-<li><a href="../../../../ckb15999/workspace/kprep/repX/index.html">名工太郎 24115999 </a>
+<li><a href="../../../../ckl15064/workspace/kprep/rep7/index.html">佐藤嵩晟 27115064</a>
+<li><a href="../../../../ckl15069/workspace/kprep/rep7/index.html">塩谷昇平 27115069</a>
+<li><a href="../../../../ckl15085/workspace/kprep/rep7/index.html">瀬戸口大貴 27115085</a>
+<li><a href="../../../../ckl15126/workspace/kprep/rep7/index.html">長谷川達也 27115126</a>
 </ul>
 
 <h2>役割分担</h2>
 <!-- 役割分担を書く．-->
 <ul>
-<li>名工大輔: 課題X-1 考察担当，課題X-4 GUI実装担当
-<li>名工太郎: 課題X-1 実装担当，課題X-2 考察担当，グループ作成書類担当
+<li>佐藤嵩晟 : 課題7-3担当
+<li>塩谷昇平 : 課題7-1担当
+<li>瀬戸口大貴 : 課題7-4,グループレポート担当
+<li>長谷川達也 : 課題7-2担当
 </ul>
 
 <h2>ソースファイル</h2>
 <ul>
-  <li><a href="../../rep1/src/Fibonacci.java">Fibonacci.java</a>
+  <li><a href="../../kprep/Grep7/Planing/src/ColorAndForm.java">ColorAndForm.java</a>
+  <li><a href="../../kprep/Grep7/Planing/src/FileLoading.java">FileLiading.java</a>
+  <li><a href="../../kprep/Grep7/Planing/src/GraphViz.java">GraphViz.java</a>
+  <li><a href="../../kprep/Grep7/Planing/src/Planner.java">Planner.java</a>
+  <li><a href="../../kprep/Grep7/Planing/src/PlannerGUI.java">PlannerGUI.java</a>
     <!-- 実装・変更したソースファイルへのリンク．修正する． -->
     <!-- ※ リンクは絶対パスに変更せず，上記のような相対パスのままで！ -->
 </ul>
 
+<h2>データファイル</h2>
+<ul>
+  <li><a href="../../kprep/Grep7/Planing/goalState.data">goalState.data</a>
+  <li><a href="../../kprep/Grep7/Planing/initialState.data">initialState.data</a>
+</ul>
 <hr>
 
-<h2>課題1-1</h2>
+<h2>課題7-1</h2>
 <!-- 課題を書く．-->
-N番目のフィボナッチ数をもとめるプログラムを実装せよ．
+目標状態を変えてみたときに，動作が正しくない場合があったかどうか，実行例を示して考察せよ．
+また，もしあったならその箇所を修正し，どのように修正したか記せ．
+<hr>
+<p>
+このプランニングシステムでは、initFoalListに与えられた目標状態を達成するために必要な条件を再帰的に読み出すことで、1つの目標状態を満たしたときにそこまでのプランニングした動きを逆順で出力するという、後ろ向き推論に近い形を取っている。
+</p>
+
+<pre>
+------------------------------
+
+
+***** This is a plan! *****
+pick up B from the table
+Place B on A
+remove B from on top A
+Place B on C
+pick up A from the table
+Place A on A
+remove A from on top A
+Place A on A
+remove A from on top A
+Place A on A
+remove A from on top A
+Place A on A
+remove A from on top A
+Place A on A
+remove A from on top A
+Place A on B
+
+
+------------------------------
+</pre>
+<p>
+しかし、いろいろと目標状態を変えながら実際に動かしてみると、上記のように「Aの上にAを置く」といった明らかに正しくない動作をする場合があることに気がついた。
+</p>
+<pre>
+------------------------------
+
+
+*** GOALS ***[A on B]
+**A on B
+Place A on B
+*** GOALS ***[clear B, holding A]
+**clear B
+[clear A, ontable A, ontable C, B on C, clear B, handEmpty]
+*** GOALS ***[holding A]
+**holding A
+remove A from on top ?y6
+*** GOALS ***[A on ?y6, clear A, handEmpty]
+**A on ?y6
+Place A on ?y8
+*** GOALS ***[clear ?y8, holding A]
+**clear ?y8
+[clear A, ontable A, ontable C, B on C, clear B, handEmpty]
+*** GOALS ***[holding A]
+**holding A
+
+…
+
+…
+
+…
+
+
+------------------------------
+
+
+このときのプランニングシステムの動作中の推論過程を見てみると、
+
+・AがBの上にあるためには、AをBの上に置くことが条件
+→AをBの上に置くためには、Aを持ち上げていることとBの上が空であることが条件
+→Bの上が空であるという条件は既に満たしている
+→Aを持ち上げるためには、Aを?y6から取り除くことが条件
+→Aを?y6から取り除くためには、Aが?y6の上にあること、Aの上が空であること、手が空いていることが条件
+→Aが?y6の上にあるためには、Aを?y8の上に置くことが条件
+→Aを?y8の上に置くためには、Aを持ち上げていることと?y8の上が空であることが条件
+……
+
+という挙動をしている事が分かる。
+</pre>
+<p>
+初期状態では、Aのブロックはテーブルの上に置いてあるため、「Aを?yの上から取り除く」というオペレータは正しくないことが明らかである。しかし、実際にはAが何かの上に置いてあると仮定してオペレータを実行しようとするため、意味のない推論のループを深く掘り進めてしまう。この結果、出力に正しくない動作が書き出されていると考えられる。
+</p>
+<p>
+この状況を解消するため、オペレータの選択段階で「?xを?yから取り除く」「?xをテーブルから拾い上げる」の2つのオペレータに優先順位をつけ、?xを持ちたい場合は必ず「?xをテーブルから拾い上げる」を先に検討する仕様に変更した。これにより、下記のような結果を得て変数を仮定した推論のループに陥る可能性を排除できた。
+</p>
+<pre>
+------------------------------
+
+
+***** This is a plan! *****
+pick up B from the table
+Place B on C
+pick up A from the table
+Place A on B
+
+
+------------------------------
+</pre>
+<p>
+この仕様に変更した後、目標状態を変更しながら実行した場合でも、それが合理的に達成可能な目標状態であれば正しく、かつ無駄のない正確な動作をするようになった。
+</p>
+
+<h2>課題7-2</h2>
+<!-- 課題を書く．-->
+教科書のプログラムでは，オペレータ間の競合解消戦略としてランダムなオペレータ選択を採用している．
+これを，効果的な競合解消戦略に改良すべく考察し，実装せよ．
+改良の結果，性能がどの程度向上したかを定量的に（つまり数字で）示すこと．<br>
+<br>
+
+<h3>独自仕様の説明</h3>
+
+  独自仕様として、ゴール状態がおかしな書き方がされても対応できるようにした。<br>
+  <br>
+  たとえば、ゴール状態を"A on B on C"という風にしても、内部的には"B on C", "A on B"
+  と分解された状態で認識されるような実装方法をとった。<br>
+  <br>
+
+<h3>プログラムの変更箇所</h3>
+
+  競合戦略を効果的にするために、以下のメソッドを編集および追加をした。<br>
+  <br>
+  Planner::planning：
+  <ol>
+    プランニングを実際に行う関数。後ろ向き推論においてひとつ前のオペレータを
+    引数として渡せるようにした。
+  </ol>
+  Planner::planningAGoal:
+  <ol>
+    プランニングにおいて、ゴール状態を一つずつ検討する関数。Planner::planning
+    と同様にオペレータを引数に渡せるようにした。
+  </ol>
+  Planner::alignGoalList:
+  <ol>
+    ゴールリストをある程度都合のいいように並び替えや分解を行う関数。
+  </ol>
+  Planner::initOperator:
+  <ol>
+    プランニング前に、オペレータ群を初期化する関数。オペレータ間の依存関係を
+    追加する処理を追加した。
+  </ol>
+  Operator::GetPairedOperator:
+  <ol>
+    オペレータに依存している別のオペレータのリストを返す関数。
+  </ol>
+  Operator::addPairedOperator:
+  <ol>
+    引数に渡されたオペレータを依存しているオペレータのリストに追加する関数。
+  </ol>
+  Operator::getIsRelatedNextOperator:
+  <ol>
+    依存関係があるオペレータがひとつ前に来ている場合に、チェックする必要がある
+    のかをフラグに事前知識として与えておいて、それを返す関数。
+  </ol>
+  Unify::unifyToken:
+  <ol>
+    もともとunifyの引数が少ないものだったのだが、名前を変えたもの。比較が必要な
+    場合に、変数束縛がすべて同じでないかを比較する処理を追加した。
+  </ol>
+  Unify::tokenMatching:
+  <ol>
+    それぞれのトークンでマッチングを行う関数。片方が変数の場合に別で定義したvarMatching
+    を呼ぶように処理を変更した。
+  </ol>
+  Unify::varMatching:
+  <ol>
+    それぞれの変数に束縛を行う関数。片方が変数の場合は、引数を増やしたものを呼び、
+    その内部では同じステップの変数割り当てで別の変数なのにかぶっている場合にfalse
+    を返すように処理を追加した。
+  </ol><br>
+  
+  <h3> 実装の説明 </h3>
+  今回、実装した点を大まかにまとめると、以下のようになる。
+  <ol>
+    <li> 変数束縛の別の変数なのに同じ値が入るバグの修正 </li>
+    <li> ゴール状態の編集 </li>
+    <li> 依存関係があるオペレータを優先的に探索するように編集 </li>
+    <li> 一段階前のオペレータに依存関係があり、比較する必要があるならば、変数束縛をチェックする </li>
+  </ol>
+  <br>
+  1.に関しては、そもそもこのバグの原因は、変数束縛の際に同じ段階の中で別の変数なのに同じ値が割り当て
+  られてないかのチェックをしていないのと、変数の割り当てに現在の状態のリストの先頭から条件に合うもの
+  から優先したものを使用しているという２つの仕様がうまいこと重なり合って起こっている。そのため、片方
+  を修正すればこのバグは取り除かれるので、今回は変数束縛時のチェックを行うように実装を変更した。<br>
+  <br>
+  具体的は、Unify::tokenMatchingとUnify::varMatchingを変更することで実現した。Unify::tokenMatching
+  では、片方が変数の場合に、今までの変数束縛の履歴をvarMatchingに渡すようにした。その際に呼ばれる
+  Unify::varMatchingは、元々のプログラムで定義していたものの引数を増やしたものを別で定義したものを使用
+  する。その内部では、変数束縛の履歴の中で同じ段階の変数束縛を探し、その時点で束縛しようとしている値が
+  別の変数にないかをチェックし、あればマッチングを失敗させるためにfalseを返している。以下がその部分の
+  ソースである。
+  <pre class="brush: java">
+      boolean varMatching(String vartoken, 
+                          String token, 
+                          Hashtable theBinding, 
+                          Integer[] matchPreviousResultCount) 
+      {
+        if (vars.containsKey(vartoken)) 
+        {
+          ... 
+        } 
+        else 
+        {
+          String uniqueNum = vartoken.replaceAll("[^0-9]", "");
+          for (Enumeration e = theBinding.keys(); e.hasMoreElements();) 
+          {
+            // 同じアサーション内の異なる変数で同じ値が割り当てられた際の処理
+            String key = (String) e.nextElement();
+            String value = (String) theBinding.get(key);
+            if(key.contains(uniqueNum) && value.equals(token))
+            {
+              return false;
+            }
+            ...
+          }
+          
+          ...
+        }
+        return true;
+      }
+  </pre>
+  <br>
+  次に、2.に関して、これはPlanner::alignGoalListを実装することで実現している。<br>
+  <br>
+  具体的には、引数に与えられたゴールリストの中から"- on -"の形のゴール状態をとり、さらに"-"の部分を
+  抽出する。その後、抽出したオブジェクトが上から並ぶようにリストに格納し、都合のいいようにゴールリスト
+  を再構成したリストを返す。ちなみに、"- on -"の形でないゴール状態はそのまま返すリストの先頭から格納
+  しておく。以下はPlanner::alignGoalListの部分のソースである。
+  <pre class="brush: java">
+      private Vector alignGoalList(Vector goalList)
+      {
+        Vector newGoalList = new Vector();
+        ArrayList&lt;String&gt; allObjects = new ArrayList&lt;String&gt;();
+    
+        for(int index = 0; index < goalList.size(); ++index)
+        {
+          ArrayList&lt;String&gt; objects = new ArrayList&lt;String&gt;();
+          boolean isOnState = false;
+          StringTokenizer tokenizer = new StringTokenizer((String)goalList.get(index));
+          String firstObject = "";
+
+          while(tokenizer.hasMoreTokens())
+          {
+            String token = tokenizer.nextToken();
+            if(!token.equals("on"))
+            {
+              objects.add(token);
+              if(firstObject.equals(""))
+                firstObject = token;
+            }
+            else
+            {
+              isOnState = true;
+            }
+          }
+    
+          int insertIndex = allObjects.size();
+    
+          if(allObjects.contains(firstObject))
+          {
+            insertIndex = allObjects.indexOf(firstObject);
+            allObjects.remove(insertIndex);
+          }
+          if(isOnState)
+          {
+            allObjects.addAll(insertIndex, objects);
+          }
+          else
+          {
+            newGoalList.add((String)goalList.get(index));
+          }
+        }
+    
+        for(int index = allObjects.size() - 1; index > 0; --index)
+        {
+          String goal = allObjects.get(index - 1) + " on " + allObjects.get(index);
+          newGoalList.add(goal);
+        }
+    
+        return newGoalList;
+      }
+  </pre>
+  <br>
+  次に、3.に関して、各オペレータに対して依存関係のあるオペレータを事前知識としてリストで与えて置き、
+  一つ前の探索で用いたオペレータからそのリストを取得し、それらのオペレータの探索の優先順位を上げる処理
+  を行っている。ここでいう依存関係があるとは、今回の操作としては「拾う」ものと「置く」ものの二種類に
+  分けることができるので、それぞれのオペレータに対して逆の意味を持つものとの関係を指している<br>
+  <br>
+  具体的にはPlanner::planningAGoalにおいて、マッチングにおいてオペレータを選択する前に引数に与えられた
+  一つ前のマッチングで使用した依存関係のあるオペレータがnullでなかったときに、そのオペレータからリストを
+  取得して、優先度を上げる処理を行っている。また、一つ前のオペレータを与えるための処理もこの関数で行っており、
+  マッチングが成功した際に再帰的にPlanner::planningを呼ぶときに渡している。以下が、その２点の部分が書かれた
+  部分のソースである。
+  <pre class="brush: java">
+    private int planningAGoal(String theGoal,
+                              Vector theCurrentState,
+                              Hashtable theBinding,
+                              int cPoint,
+                              Operator nextOperator) 
+    {
+        ... 
+        
+        /* 対になるオペレータの優先順位を上げる */
+        if(nextOperator != null)
+        {
+          Vector pairs = nextOperator.GetPairedOperatorList();
+          for(int i = 0; i < pairs.size(); ++i)
+          {
+            Operator pair = (Operator) pairs.get(i);
+            operators.remove(pair);
+            // 先頭に持ってく
+            operators.add(0, pair);
+          }
+        }
+
+        for (int i = cPoint; i < operators.size(); i++) 
+        {
+          Operator targetOperator = (Operator) operators.elementAt(i);
+          Operator anOperator = rename(targetOperator);
+          
+          ...
+
+          for (int j = 0; j < addList.size(); j++) 
+          {
+            ... 
+
+            if ((new Unifier()).unify(theGoal,(String) addList.elementAt(j), theBinding, isRelatedNextOperator))
+            {
+              // 具体化し、あらたなゴールを生成
+              Operator newOperator = anOperator.instantiate(theBinding);
+              Vector newGoals = (Vector) newOperator.getIfList();
+              //System.out.println(newOperator.name);
+
+              // 再帰呼び出し
+              if (planning(newGoals, theCurrentState, theBinding, targetOperator)) 
+              {
+                ... 
+              } 
+              else 
+              {
+                ... 
+              }
+              plan.removeAllElements();
+              for (int k = 0; k < orgPlan.size(); k++) {
+                plan.addElement(orgPlan.elementAt(k));
+              }
+            }
+          }
+        }
+      }
+      return -1;
+    }
+  </pre>
+  <br>
+  最後に、4.について、依存関係については3.のときと同じであるが、それに比較する必要があるとはどういうことかというと、
+  最終的な目的状態は通常オブジェクトはつかまれている状態を含んでいるため、最後に行われる操作は置く操作であると考えら
+  れる。そのため、無駄な操作を繰り返すような推論をしそうなのは拾う系の操作であるため、それらが比較が必要であるオペレ
+  ータであるということになる。<br>
+  <br>
+  具体的な実装としては、Unify::unityTokenを変更することで実現させている。比較が必要とするオペレータを探索している
+  場合に、変数の数と一つ前の段階の変数割り当てとかぶっている数をそれぞれカウントし、それらが一致した場合にマッチングを
+  失敗させるためにfalseを返させている。以下がその部分のソースである。
+  <pre class="brush: java">
+      public boolean unifyToken(String string1, String string2, Hashtable theBindings, boolean isRelatedNextOperator) 
+      {
+        ...
+    
+        Integer varTokenCount[] = {0};
+        Integer matchPreviousResultCount[] = {0};
+    
+        for (int i = 0; i < length; i++) {
+          if (!tokenMatching(buffer1[i], buffer2[i], theBindings, varTokenCount, matchPreviousResultCount)) {
+            return false;
+          }
+        }
+    
+        if(isRelatedNextOperator && varTokenCount == matchPreviousResultCount){
+          return false;
+        }
+    
+        return true;
+      }
+  </pre>
+  実際のカウントについてはUnify::tokenMatching内部で行っているのだが、割と単純な構造をしているので、説明は割愛する。
+
+  <h3> 実行例 </h3>
+  まず、元のプログラムにおいて、検証したオペレータの数と最終結果をそれぞれ出力した結果を以下に示す。<br>
+  <br>
+  <pre>
+      Step: 25
+      ***** This is a plan! *****
+      pick up B from the table
+      Place B on A
+      remove B from on top A
+      Place B on C
+      pick up A from the table
+      Place A on A
+      remove A from on top A
+      Place A on A
+      remove A from on top A
+      Place A on A
+      remove A from on top A
+      Place A on B
+  </pre>
+  次に、今回作成したプログラムにおいて、同様の出力をした結果を以下に示す。<br>
+  <br>
+  <pre>
+      Step: 8
+      ***** This is a plan! *****
+      pick up B from the table
+      Place B on C
+      pick up A from the table
+      Place A on B
+  </pre>
+  元のプログラムに関しては何回か試してみたが、オペレータの決め方に乱数を採用しているため、今回の
+  プログラムに比べて検証した数が少なくなることはあっても最適な解を出している場合はかなり少なかった。
+  逆に、今回作成したプログラムは検証する回数もそこそこ少なく、最適な解を出すことができている。<br>
+  <br>
+  よって、ある程度の改良をすることはできたといえるだろう。<br>
+  <br>
+
+<h2>課題7-3</h2>
+<!-- 課題を書く．-->
+上記7-2で改良したプランニングシステムのGUIを実装せよ．
+ブロック操作の過程をグラフィカルに可視化し，初期状態や目標状態をGUI上で変更できることが望ましい． 
 
 <h3>独自仕様の説明</h3>
 <!--
  もし自分で独自に決めた仕様があれば，その説明を書く．
 -->
-<p>グループで話し合った結果，課題に加えて，以下の三点を独自仕様として組み込んだ．</p>
-
+<p>課題に加えて、以下の3点を独自仕様として組み込んだ。</p>
 <ol>
-  <li>与えられた数がフィボナッチ数かどうかを判定する</li>
-  <li>N番目のフィボナッチ数だけではなく，N番目までのフィボナッチ数列を返す</li>
-  <li>フィボナッチ数の一般項を用いてN番目のフィボナッチ数を求める</li>
+ <li>初期状態や目標状態をファイルから読み込めるようにした。</li>
+ <li>ブロックの操作過程を画像で表示するようにした。</li>
+ <li>ブロックの状態の推移をテキストのアニメーションで表示するようにした。</li>
 </ol>
 
 <p>
-  1.に関して，ユーザーから数字が与えられた時，それがフィボナッチ数である時に true を返し，
-  フィボナッチ数ではない時には false を返す仕様とした．
+  1に関して、ファイル名を入力してロードボタンを押すと、初期状態または目標状態が入力される仕様にした。
 </p>
 <p>
-  2.に関しては，整数Nが与えられた時，0番目からN番目までのフィボナッチ数列を配列として返す仕様とした．
+  2に関しては、GraphViz.javaを用いてブロックの操作過程をグラフの画像で表示する仕様にした。
 </p>
-<p>3.に関しては……</p>
+<p>3に関しては、実際のブロックの動きをテキストエリアで表示するようにした。</p>
 
 <h3>プログラムの構造</h3>
 <!--  どのような設計をしたか．-->
 <p>
-  実装したプログラムは単一のクラス Fibonacci で構成されている．
-  Fibonacci クラスはインスタンスメソッドとして，calcFibo(), isFibo(), calcFiboSeq(), calcFiboGeneral() を持つ．
-  calcFibo() メソッドは引数として Int 型の値 n を取り，n 番目のフィボナッチ数を戻り値として返す．
-  isFibo() メソッドは……
+  実装したプログラムは3つのクラス PlannerGUI,Runner,_Unifier で構成されている。<br>
+  PlannerGUIクラスはGUIを構成するクラスで、インスタンスメソッドとして、
+<ul>
+ <li>actionPerformed(): 各ボタンの動作を記述</li>
+ <li>writeBuffer(): 引数として受け取ったString型のリストを、テキストエリアに表示するためにString型に変換して返す</li>
+ <li>main(): GUIの起動</li>
+</ul>
+これら3つのメソッドを持つ。<br>
+RunnerクラスはGUIとは別のスレッドで画像の表示やアニメーションの表示を行うクラスで、Threadクラスを継承したクラスである。インスタンスメソッドとして、
+<ul>
+ <li>runPlanner(): プランニングを行う</li>
+ <li>move(): runPlanner()で得られた操作方法を受け取り、それに従ってアニメーションの表示を行う</li>
+ <li>run(): runPlanner(),move()をまとめたメソッド</li>
+ <li>sleep(): sleepする</li>
+</ul>
+これら4つのメソッドを持つ。<br>
+_Unifierクラスは、教科書のUnifierクラスとほぼ同じである。
+  
 </p>
 
 
@@ -108,12 +557,7 @@ N番目のフィボナッチ数をもとめるプログラムを実装せよ．
  特に重要な箇所はレポートにペーストして説明する．
 -->
 <p>
-  実装したプログラムに関して，先に挙げた calcFibo(), isFibo(), calcFiboSeq(), calcFiboGeneral() メソッドの説明を行う．
-  calcFibo() は名工太郎，isFibo() は名工大輔，calcFiboSeq() は名大三郎，calcFiboGeneral() は東工太郎が実装を行った．
-</p>
-
-<p>
-  下記は calcFibo() メソッドの実装である．ここで特筆すべき点は……
+  実装したプログラムに関して、まずPlannerGUIクラスのactionPerformed(), writeBuffer() メソッドの説明を行う。<br>
 </p>
 
 <!--
@@ -122,32 +566,618 @@ N番目のフィボナッチ数をもとめるプログラムを実装せよ．
   重要な部分のみを貼り付ければ良い
 -->
 <pre class="brush: java">
-  /* n番目のフィボナッチ数を計算 */
-  int calcFibo(int n) {
-    if (n <= 1) {
-      return 1;
-    }
-    return calcFibo(n - 1) + calcFibo(n - 2);
-  }
-</pre>
+public void actionPerformed(ActionEvent event){
+   JButton button = (JButton)event.getSource();
 
+   if(button == load){
+      /*
+       * FileLoading.fileLoading(fileNameTextArea.getText()でファイルのテキスト(リスト)を受け取り、
+       * 受け取ったテキスト(リスト)をwriteBuffer()でStringに変換し、
+       * 変換したStringをsetText()する。
+       */
+      initialTextArea.setText(writeBuffer(FileLoading.fileLoading(fileNameTextArea1.getText())));
+      goalTextArea.setText(writeBuffer(FileLoading.fileLoading(fileNameTextArea2.getText())));
+   }
+   else if(button == save){
+      try {
+         FileWriter initialFw = new FileWriter(fileNameTextArea1.getText());
+         FileWriter goalFw = new FileWriter(fileNameTextArea2.getText());
+
+         initialFw.write(initialTextArea.getText());
+         initialFw.close();
+         goalFw.write(goalTextArea.getText());
+         goalFw.close();
+      } catch (IOException e) {
+         System.out.println(e);
+      }
+   }
+   else if(button == run){
+      runner = new Runner(this); //GUIのポインタをrunnerに渡す
+      runner.start(); //実行
+   }
+}
+</pre>
+ボタンはLoad,Save,Runの3つがある。<br>
+Loadは入力されたファイル名を読み込むボタンで、4〜12行目にかけて記述されている。<br>
+Saveはテキストエリアに入力された初期状態、目標状態をファイルに保存するボタンで、13〜25行目にかけて記述されている。<br>
+Runはプランニングを行うボタンで、26〜29行目にかけて記述されている。runnerはRunnerクラスの変数で、27行目でGUIのポインタをrunnerに渡し、28行目でGUIを制御しながらプランニングを行う。
+<pre class="brush: java">
+public String writeBuffer(ArrayList< String > data) {
+   String buffer = "";
+
+   for (int i = 0; i < data.size(); i++) {
+      buffer += data.get(i);
+      buffer += "\n";
+   }
+
+   return buffer;
+}
+</pre>
+writeBuffer()メソッドは、リストをString型に変換するメソッドで、1つ1つの要素を改行で繋いでいる。<br>
+次に、Runnerクラスのフィールド･コンストラクタとrunPlanner(), move(),run(),sleep()メソッドの説明を行う。<br>
+<pre class="brush: java">
+class Runner extends Thread{
+	PlannerGUI pgui;
+	Planner p;
+	
+	Runner(PlannerGUI pgui){
+		this.pgui = pgui;
+		this.p = new Planner(this.pgui);
+	}
+
+     /***---中略---***/
+</pre>
+RunnerクラスはThreadクラスを継承したクラスである。フィールドのpgui,pはそれぞれGUIを表す変数とプランニングを行う変数であり、pにもGUIのポインタを渡す。
+<pre class="brush: java">
+public void runPlanner(){
+   p.startWithGUI();
+
+   SwingUtilities.invokeLater(new Runnable(){
+      public void run(){
+         ImageIcon icon = new ImageIcon("tmp/simple"+pgui.counter+".png");
+         pgui.imgLabel.setIcon(icon);
+         SwingUtilities.updateComponentTreeUI(pgui.frame);
+      }
+   });
+}
+</pre>
+2行目のstartWithGUI()メソッドは、Plannerクラスのstart()メソッドをGUIで行えるように変更したメソッドである。startWithGUI()メソッド内でブロック操作の画像を生成するため、プランニングを終えた後、4〜10行目でGUIに生成した画像の表示を行う。
+<pre class="brush: java">
+public void move(ArrayList< String > process){
+   HashMap< String,Integer > state = new HashMap< String,Integer >();
+   state.put("A", 1);
+   state.put("B", 2);
+   state.put("C", 3);
+   state.put("1", 1);
+   state.put("2", 1);
+   state.put("3", 1);
+
+   String blank = "　　　　　";
+   String stick = "　　／　　";
+   String hand = "／／／／／";
+
+   ArrayList< String > move = new ArrayList< String >();
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
+   move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
+   move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
+   move.add("　　　　　＿　Ａ　＿　　　　　＿　Ｂ　＿　　　　　＿　Ｃ　＿　　　　　");
+   move.add("　　　　　＿　　　＿　　　　　＿　　　＿　　　　　＿　　　＿　　　　　");
+   move.add("　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　＿＿＿＿＿　　　　　");
+   move.add("／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／／");
+
+   pgui.moveTextArea.setText(pgui.writeBuffer(move));
+
+   for(int i=0; i< process.size(); i++){
+      pgui.opeTextArea.setText((i+1)+":"+process.get(i));
+      String ope = process.get(i);
+      _Unifier unifier = new _Unifier();
+
+      if(ope.contains("Place")){
+         unifier.unify(ope, "Place ?x on ?y");
+         int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
+         int yRen = 5+10*(state.get(unifier.vars.get("?y"))-1);
+         int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?y")))));
+         int len = Math.abs(yRen-xRen);
+         for(int j=0; j< len; j++){
+            if(yRen>xRen){
+               for(int k=0; k<8; k++){
+                  move.set(k, "　"+move.get(k).substring(0,move.get(k).length()-1));
+               }
+            }
+            else{
+               for(int k=0; k<8; k++){
+                  move.set(k, move.get(k).substring(1)+"　");
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=7; j< Col-1; j++){
+            for(int k=j; k>=0; k--){
+               move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
+               StringBuilder sb = new StringBuilder(move.get(k+1));
+               move.set(k+1,sb.insert(yRen,move.get(k).substring(yRen,yRen+5)).toString());
+               if(k==0){
+                  sb = new StringBuilder(move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+                  move.set(k,sb.insert(yRen,stick).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=Col-5; j>0; j--){
+            for(int k=0; k< j; k++){
+               move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+               StringBuilder sb = new StringBuilder(move.get(k));
+               move.set(k, sb.insert(yRen,move.get(k+1).substring(yRen,yRen+5)).toString());
+               if(k==j-1){
+                  move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+                  sb = new StringBuilder(move.get(k));
+                  move.set(k,sb.insert(yRen,blank).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         state.put(unifier.vars.get("?x"), state.get(unifier.vars.get("?y")));
+         state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
+      }
+      else if(ope.contains("remove")){
+         unifier.unify(ope, "remove ?x from on top ?y");
+         int Ren = 5+10*(state.get(unifier.vars.get("?x"))-1);
+         int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
+         for(int j=0; j< Col; j++){
+            for(int k=j; k>=0; k--){
+               move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+               StringBuilder sb = new StringBuilder(move.get(k));
+                  if(k!=j){
+                     move.set(k,sb.insert(Ren,stick).toString());
+                  }
+                  else{
+                     move.set(k,sb.insert(Ren,hand).toString());
+                  }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=Col-3; j>0; j--){
+            for(int k=1; k< j+8; k++){
+               move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
+               StringBuilder sb = new StringBuilder(move.get(k-1));
+               move.set(k-1, sb.insert(Ren,move.get(k).substring(Ren,Ren+5)).toString());
+               if(k==j+7){
+                  move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+                  sb = new StringBuilder(move.get(k));
+                  move.set(k,sb.insert(Ren,blank).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+         state.put(Integer.toString(state.get(unifier.vars.get("?y"))),-1*(Col/5-4)-1);
+      }
+      else if(ope.contains("pick")){
+         unifier.unify(ope, "pick up ?x from the table");
+         int Ren = 5+10*(state.get(unifier.vars.get("?x"))-1);
+         int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
+         for(int j=0; j< Col; j++){
+            for(int k=j; k>=0; k--){
+               move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+               StringBuilder sb = new StringBuilder(move.get(k));
+               if(k!=j){
+                  move.set(k,sb.insert(Ren,stick).toString());
+               }
+               else{
+                  move.set(k,sb.insert(Ren,hand).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=Col-3; j>0; j--){
+            for(int k=1; k< j+8; k++){
+               move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
+               StringBuilder sb = new StringBuilder(move.get(k-1));
+               move.set(k-1, sb.insert(Ren,move.get(k).substring(Ren,Ren+5)).toString());
+               if(k==j+7){
+                  move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+                  sb = new StringBuilder(move.get(k));
+                  move.set(k,sb.insert(Ren,blank).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+         state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)-1);
+      }
+      else if(ope.contains("put")){
+         unifier.unify(ope, "put ?x down on the table");
+         int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
+         int yRen;
+         int Col = 20;
+         switch(unifier.vars.get("?x")){
+            case "A": yRen = 5; break;
+            case "B": yRen = 15; break;
+            default : yRen = 25;
+         }
+
+         int len = Math.abs(yRen-xRen);
+
+         for(int j=0; j< len; j++){
+            if(yRen>xRen){
+               for(int k=0; k< 8; k++){
+                  move.set(k, "　"+move.get(k).substring(0,move.get(k).length()-1));
+               }
+            }
+            else{
+               for(int k=0; k< 8; k++){
+                  move.set(k, move.get(k).substring(1)+"　");
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=7; j< Col-1; j++){
+            for(int k=j; k>=0; k--){
+               move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
+               StringBuilder sb = new StringBuilder(move.get(k+1));
+               move.set(k+1,sb.insert(yRen,move.get(k).substring(yRen,yRen+5)).toString());
+               if(k==0){
+                  sb = new StringBuilder(move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+                  move.set(k,sb.insert(yRen,stick).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         for(int j=Col-5; j > 0; j--){
+            for(int k=0; k< j; k++){
+               move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+               StringBuilder sb = new StringBuilder(move.get(k));
+               move.set(k, sb.insert(yRen,move.get(k+1).substring(yRen,yRen+5)).toString());
+               if(k==j-1){
+                  move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+                  sb = new StringBuilder(move.get(k));
+                  move.set(k,sb.insert(yRen,blank).toString());
+               }
+            }
+            sleep();
+            pgui.moveTextArea.setText(pgui.writeBuffer(move));
+         }
+
+         state.put(unifier.vars.get("?x"), (yRen-5)/10);
+         state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
+      }
+   }
+}
+</pre>
+これはブロック操作の過程をアニメーションで表示するためのメソッドだが、非常に読みづらいし、テキストを1行ずつずらしているだけなので特に解説は行わない。
+<pre class="brush: java">
+public void run(){
+
+   runPlanner();
+
+   try{
+      move(p.process);
+   }
+   catch(Exception e){
+      System.out.println(e);
+   }
+}
+</pre>
+これはrunPlanner()メソッドとmove()メソッドをまとめたメソッドで、actionPerformed()メソッドの28行目にあるrunner.start()によって実行される。
+<pre class="brush: java">
+public void sleep(){
+   try{
+      Thread.sleep(50);
+   }
+   catch(Exception e){
+      System.out.println(e);
+   }
+}
+</pre>
+これはsleepを行うメソッドである。アニメーションを見やすくするために用いる。sleepの時間はこのメソッド内で指定する。
 
 <h3>実行例</h3>
 <!-- 実行例を示す．PNGやGIF等の絵を張っても良い．-->
 <p>
-  calcFibo() メソッドの戻り値を標準出力に出力した結果を下図に示す．
+ GUIでの実行例を以下に示す。
 </p>
 
 <!-- 画像ファイルを貼る場合は <img> タグを使う -->
-<img src="./hoge/image.png"/>
+<img src="../../../../ckl15064/workspace/kprep/rep7/img/move.gif"/><br>
+実行例では、pick up B from the table → Place B on Cの操作を示している。<br>
+もちろんファイル名が入力されていなくても、テキストエリアに状態が入力されていれば実行できる。
+<img src="../../../../ckl15064/workspace/kprep/rep7/img/img.png"/><br>
 
-<p>
-  今回は0, 1番目のフィボナッチ数を1としたため，図で表したように calcFibo() の引数に5を与えた時は8となるのが正しい動作である．……
+<h2>課題7-4</h2>
+<!-- 課題を書く．-->
+上記のプランニングのプログラムでは，ブロックの色や形を考えていないので，色と形のいずれか，あるいは両方を扱えるようにせよ．
+
+<h3>独自仕様の説明</h3>
+<!--
+ もし自分で独自に決めた仕様があれば，その説明を書く．
+-->
+<p>ブロックの色の代表として赤，白，緑の3色とブロックの形の代表として三角形，四角形，台形の3つを扱い，三角形の上にはブロックを乗せることが出来ないようにした．
 </p>
 
-<h2>課題1-2</h2>
-<!-- 以下，上記と同様 -->
-(以下同様)
+
+<h3>プログラムの構造</h3>
+<!--  どのような設計をしたか．-->
+<p>初期状態にブロックの色や形の情報を入力から目標状態が色または形で指定されていた場合，目標状態をブロック名に変換してからプランニングを行う．
+Planner.javaからinitInitialState()，initGoalList()，initOperators()で色と形の情報も処理出来るようにした．また，三角形かどうかの確認を行うcheckTriangle()を追加した．
+</p>
+
+
+<h3>実装の説明</h3>
+<!--
+ どう実装したか，ソースコードを詳細に説明する．
+ 特に重要な箇所はレポートにペーストして説明する．
+-->
+<p>まず，initInitialState()で色や形を追加したときのreturnで形が三角形かどうかを調べるcheckTriangle()を通して返す．
+</p>
+
+<!--
+  ソースコードをはりつける時は <pre> タグを使う
+  class="brush: java" でシンタックスハイライトする
+  重要な部分のみを貼り付ければ良い
+-->
+<pre class="brush: java">
+private Vector initInitialState() {
+	Vector initialState = new Vector();
+	initialState.addElement("clear A");
+	initialState.addElement("clear B");
+	initialState.addElement("clear C");
+
+	initialState.addElement("A is triangle"); // triangle,trapezoid=台形,square
+	initialState.addElement("B is trapezoid");
+	initialState.addElement("C is square");
+
+	initialState.addElement("A is color of red"); // red,white,green
+	initialState.addElement("B is color of white");
+	initialState.addElement("C is color of green");
+
+	initialState.addElement("ontable A");
+	initialState.addElement("ontable B");
+	initialState.addElement("ontable C");
+	initialState.addElement("handEmpty");
+
+	return checkTriangle(initialState);
+}
+</pre>
+
+<p>checkTriangle()では正規表現によって三角形以外(四角形，台形)を"not triangle"としてアサーションに追加する．</p>
+
+<pre class="brush: java">
+private Vector checkTriangle(Vector initialState){
+	Vector re = new Vector();
+		
+	for (int i = 0; i &lt initialState.size(); i++) {
+		String str = (String) initialState.elementAt(i);
+		Pattern pat1 = Pattern.compile("(?&ltobject&gt.+?) is square");
+		Matcher mat1 = pat1.matcher(str);
+		if (mat1.find()) { // もしパターンにマッチすれば
+			String object = mat1.group("object");
+			re.addElement(object + " is not triangle");
+		} else {
+			Pattern pat2 = Pattern.compile("(?&ltobject&gt.+?) is trapezoid");
+			Matcher mat2 = pat2.matcher(str);
+			if (mat2.find()) { // もしパターンにマッチすれば
+				String object = mat2.group("object");
+				re.addElement(object + " is not triangle");
+			}
+		}
+		re.addElement(str);
+	}
+	return re;
+}
+</pre>
+
+<p>次にinitOperators()では色の判定と形の判定を追加した．"Place 色 on ?x"と"Place ?x on 色"の2通りの文をその色に対応しているブロック名に変換して返す．また，形についても同様にブロック名に変換する．</p>
+
+<pre class="brush: java">
+	// 色の判定
+	String name5 = new String("Place red on ?y");
+	// IF
+	Vector ifList5 = new Vector();
+	ifList5.addElement(new String("?x is color of red"));
+	ifList5.addElement(new String("?x on ?y"));
+	// ADD-LIST
+	Vector addList5 = new Vector();
+	addList5.addElement(new String("red on ?y"));
+	// DELETE-LIST
+	Vector deleteList5 = new Vector();
+	Operator operator5 = new Operator(name5, ifList5, addList5, deleteList5, false);
+	operators.addElement(operator5);
+                       ⋮
+
+	// 形の判定
+	String name11 = new String("Place square on ?y");
+	// IF
+	Vector ifList11 = new Vector();
+	ifList11.addElement(new String("?x is square"));
+	ifList11.addElement(new String("?x on ?y"));
+	// ADD-LIST
+	Vector addList11 = new Vector();
+	addList11.addElement(new String("square on ?y"));
+	// DELETE-LIST
+	Vector deleteList11 = new Vector();
+	Operator operator11 = new Operator(name11, ifList11, addList11, deleteList11, false);
+	operators.addElement(operator11);
+                       ⋮
+</pre>
+
+<p>
+"Place ?x on ?y"を行うオペレータのif条件に"?y is not triangle"を追加することによってブロックが三角形でない場合のみに限りその上にブロックを積むことができるようにした．
+</p>
+
+<pre class="brush: java">
+	// OPERATOR 1
+	// / NAME
+	String name1 = new String("Place ?x on ?y");
+	// / IF
+	Vector ifList1 = new Vector();
+	ifList1.addElement(new String("clear ?y"));
+	ifList1.addElement(new String("holding ?x"));
+	ifList1.addElement(new String("?y is not triangle"));
+	// / ADD-LIST
+	Vector addList1 = new Vector();
+                  ⋮
+</pre>
+
+<p>
+また，三角形の上にしか置けない状況になると無限ループしてしまうので，それを回避する為の手段として"?x is not triangle"を削除する"Not Success"のオペレータを作成した．
+</p>
+
+<pre class="brush: java">
+	// / NAME
+	String name17 = new String("Not Success");
+	// / IF
+	Vector ifList17 = new Vector();
+	ifList17.addElement(new String("?x is triangle"));
+	// / ADD-LIST
+	Vector addList17 = new Vector();
+	addList17.addElement(new String("?x is not triangle"));
+	// / DELETE-LIST
+	Vector deleteList17 = new Vector();
+	deleteList17.addElement(new String("?x is not triangle"));
+	Operator operator17 = new Operator(name17, ifList17, addList17, deleteList17);
+	operators.addElement(operator17);
+</pre>
+
+<h3>実行例</h3>
+<!-- 実行例を示す．PNGやGIF等の絵を張っても良い．-->
+<p>初期状態，終了状態を以下のように定義し，プログラムを実行した．</p>
+<pre class="brush: java">
+private Vector initGoalList() {
+	Vector goalList = new Vector();
+	goalList.addElement("trapezoid on green");
+	goalList.addElement("A on white");
+	return goalList;
+}
+
+private Vector initInitialState() {
+	Vector initialState = new Vector();
+	initialState.addElement("clear A");
+	initialState.addElement("clear B");
+	initialState.addElement("clear C");
+
+	initialState.addElement("A is triangle"); // triangle,trapezoid=台形,square
+	initialState.addElement("B is trapezoid");
+	initialState.addElement("C is square");
+
+	initialState.addElement("A is color of red"); // red,white,green
+	initialState.addElement("B is color of white");
+	initialState.addElement("C is color of green");
+
+	initialState.addElement("ontable A");
+	initialState.addElement("ontable B");
+	initialState.addElement("ontable C");
+	initialState.addElement("handEmpty");
+
+	return checkTriangle(initialState);
+}
+</pre>
+<p>以下に実行結果を示す．</p><br>
+<pre>
+*** GOALS ***[trapezoid on green, A on white]
+**trapezoid on green
+Place trapezoid on green
+*** GOALS ***[?y5 is color of green, trapezoid on ?y5]
+**?y5 is color of green
+[clear A, clear B, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable B, ontable C, handEmpty]
+*** GOALS ***[trapezoid on ?y5]
+**trapezoid on ?y5
+Place trapezoid on C
+*** GOALS ***[?x14 is trapezoid, ?x14 on C]
+**?x14 is trapezoid
+[clear A, clear B, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable B, ontable C, handEmpty]
+*** GOALS ***[?x14 on C]
+**?x14 on C
+Place B on C
+*** GOALS ***[clear C, holding B, C is not triangle]
+**clear C
+[clear A, clear B, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable B, ontable C, handEmpty]
+*** GOALS ***[holding B, C is not triangle]
+**holding B
+pick up B from the table
+*** GOALS ***[ontable B, clear B, handEmpty]
+**ontable B
+[clear A, clear B, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable B, ontable C, handEmpty]
+*** GOALS ***[clear B, handEmpty]
+**clear B
+[clear A, clear B, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable B, ontable C, handEmpty]
+*** GOALS ***[handEmpty]
+**handEmpty
+pick up B from the table
+[clear A, clear C, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, holding B]
+*** GOALS ***[C is not triangle]
+**C is not triangle
+Place B on C
+Place trapezoid on C
+Place trapezoid on green
+[clear A, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, B on C, clear B, handEmpty, trapezoid on C, trapezoid on green]
+*** GOALS ***[A on white]
+**A on white
+Place A on white
+*** GOALS ***[?y44 is color of white, A on ?y44]
+**?y44 is color of white
+[clear A, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, B on C, clear B, handEmpty, trapezoid on C, trapezoid on green]
+*** GOALS ***[A on ?y44]
+**A on ?y44
+Place A on B
+*** GOALS ***[clear B, holding A, B is not triangle]
+**clear B
+[clear A, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, B on C, clear B, handEmpty, trapezoid on C, trapezoid on green]
+*** GOALS ***[holding A, B is not triangle]
+**holding A
+pick up A from the table
+*** GOALS ***[ontable A, clear A, handEmpty]
+**ontable A
+[clear A, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, B on C, clear B, handEmpty, trapezoid on C, trapezoid on green]
+*** GOALS ***[clear A, handEmpty]
+**clear A
+[clear A, A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable A, ontable C, B on C, clear B, handEmpty, trapezoid on C, trapezoid on green]
+*** GOALS ***[handEmpty]
+**handEmpty
+pick up A from the table
+[A is triangle, B is not triangle, B is trapezoid, C is not triangle, C is square, A is color of red, B is color of white, C is color of green, ontable C, B on C, clear B, trapezoid on C, trapezoid on green, holding A]
+*** GOALS ***[B is not triangle]
+**B is not triangle
+Place A on B
+Place A on white
+***** This is a plan! *****
+pick up B from the table
+Place B on C
+Place trapezoid on C
+Place trapezoid on green
+pick up A from the table
+Place A on B
+Place A on white
+</pre>
+<br>
+<p>この実行結果からブロック名，色，形のいずれを終了状態とおいても正常に動作することが確認できた．</p>
 
 <h2>考察</h2>
 <!--
@@ -156,11 +1186,12 @@ N番目のフィボナッチ数をもとめるプログラムを実装せよ．
  例: 今回はできなかったが，更に〜の機能を追加すべきである．なぜなら，...
 -->
 <p>
-  今回，フィボナッチ数をもとめるためのクラス Fibonacci を実装し，インスタンスメソッドとして機能を実装したが，
-  実装後にグループで考察したところ，これは静的クラス，または，シングルトンとして実装した方が適していたという結論となった．
-  なぜなら……
+それぞれの課題についての考察は課題ごとに記述されているので割愛し，グループでの活動について考察する．
 </p>
-
+<br>
+<p>
+全員が前回の課題からグループでの課題の進め方を学んだので，もたつくことなく前回よりもスムーズに統合することができた．ただ，今回の課題は7-1,7-2が前提として他の課題があるように，段階を踏んで理解して解いていくものだったので，それ対してその段階ごとに人員を割り振って行うことは，どの課題を取り組む人も結局7-1を解き，7-2を解き，と行わなければならないので非効率的だと感じた．よってこれからの「課題は進め方」だけでなく，その前段階である「課題の割り振り方」にも重点をおいて取り組みたい．
+</p>
 
 <hr>
 
@@ -169,18 +1200,19 @@ N番目のフィボナッチ数をもとめるプログラムを実装せよ．
 <!-- 感想を書く．-->
 <!-- 例: 〜が面白かった，〜がわからなかった，〜を作ってみたい，講義・演習に関する要望，など．-->
 <p>
-  初めてのグループ課題で，なかなかうまくコミュニケーションが取れず苦労した．
-  実装に関しては……
+課題を進めていく全体的な雰囲気だが，前回と比べて一人で解くというよりもグループで解いているといった印象が強かった．課題が段階的なものだったこともあると思うが，いい傾向なのでこの雰囲気でこれからも課題を行いたい．次が最終課題なので，このメンバーで一つのものを作り上げるという意識を持って取り組みたいと思う．
 </p>
+<p>
 
+</p>
 
 <h2>参考文献</h2>
 <!-- 参考文献を書く．助けてもらった人がいれば，それも書く-->
 
 <ul>
-  <li>2XXXXXXX MIT太郎君</li>
-  <li>名大次郎 著（19XX）『Java プログラミング』オレイリー社</li>
+  <li>新谷虎松 著(2014)「Javaによる知能プログラミング入門」コロナ社</li>
 </ul>
+
 
 </body>
 </html>
