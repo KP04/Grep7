@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
 import java.util.HashMap;
+
 import javax.swing.*;
 
 public class PlannerGUI implements ActionListener {
@@ -13,9 +14,9 @@ public class PlannerGUI implements ActionListener {
 	Container contentPane;
 	
 	JButton load,save,run;
-	JLabel fileNameLabel1,fileNameLabel2,imgLabel,opeLabel;
+	JLabel fileNameLabel1,fileNameLabel2,opeLabel;
 	JPanel btnPanel;
-	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea,moveTextArea,opeTextArea;
+	JTextArea fileNameTextArea1,fileNameTextArea2,initialTextArea,goalTextArea,opeTextArea,planTextArea;
 	JScrollPane initialScrollPane,goalScrollPane,imgScrollPane;
 	
 	Runner runner;
@@ -26,10 +27,15 @@ public class PlannerGUI implements ActionListener {
 
 		frame.setTitle("Planner");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(936, 765);
+		frame.setSize(890, 353);
 		frame.setLocationRelativeTo(null);
 		frame.setLayout(null);
+<<<<<<< Updated upstream
 		//frame.setResizable(false);
+=======
+		frame.setBounds(0,0,890,353);
+		frame.setResizable(false);
+>>>>>>> Stashed changes
 
 		contentPane = frame.getContentPane();
 		
@@ -72,12 +78,22 @@ public class PlannerGUI implements ActionListener {
 		btnPanel.add(load);
 		btnPanel.add(save);
 		btnPanel.add(run);
+<<<<<<< Updated upstream
 		
 		imgLabel = new JLabel();
 		imgScrollPane = new JScrollPane(imgLabel);
 		imgScrollPane.setPreferredSize(new Dimension(396,742));
 		imgScrollPane.setBounds(540,0,396,742);
 		
+=======
+
+		planTextArea = new JTextArea();
+		planTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
+		imgScrollPane = new JScrollPane(planTextArea);
+		imgScrollPane.setPreferredSize(new Dimension(350,328));
+		imgScrollPane.setBounds(540,0,350,328);
+
+>>>>>>> Stashed changes
 		opeLabel = new JLabel("Operation:");
 		opeLabel.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeLabel.setPreferredSize(new Dimension(150,32));
@@ -86,12 +102,16 @@ public class PlannerGUI implements ActionListener {
 		opeTextArea.setFont(new Font("Arial", Font.PLAIN, 25));
 		opeTextArea.setPreferredSize(new Dimension(390,32));
 		opeTextArea.setBounds(150,296,390,32);
+<<<<<<< Updated upstream
 		
 		moveTextArea = new JTextArea("");
 		moveTextArea.setFont(new Font("Arial", Font.PLAIN, 15));
 		moveTextArea.setPreferredSize(new Dimension(540,412));
 		moveTextArea.setBounds(0,338,540,412);
 		
+=======
+
+>>>>>>> Stashed changes
 		contentPane.add(fileNameLabel1);
 		contentPane.add(fileNameTextArea1);
 		contentPane.add(initialScrollPane);
@@ -102,8 +122,12 @@ public class PlannerGUI implements ActionListener {
 		contentPane.add(imgScrollPane);
 		contentPane.add(opeLabel);
 		contentPane.add(opeTextArea);
+<<<<<<< Updated upstream
 		contentPane.add(moveTextArea);
 		
+=======
+
+>>>>>>> Stashed changes
 		frame.setVisible(true);
 	}
 	
@@ -134,7 +158,7 @@ public class PlannerGUI implements ActionListener {
 		}
 		else if(button == run){
 			runner = new Runner(this); //GUIのポインタをrunnerに渡す
-			runner.start(); //実行
+			//runner.start(); //実行
 		}
 	}
 	
@@ -163,19 +187,42 @@ public class PlannerGUI implements ActionListener {
 class Runner extends Thread{
 	PlannerGUI pgui;
 	Planner p;
+<<<<<<< Updated upstream
 	
+=======
+	ArrayList<String> initialState = new ArrayList<String>();
+	ArrayList<String> move = new ArrayList<String>();
+	HashMap<String,Integer> state = new HashMap<String,Integer>();
+	JTextArea ta;
+	int size = 0;
+
+>>>>>>> Stashed changes
 	Runner(PlannerGUI pgui){
 		this.pgui = pgui;
 		this.p = new Planner(this.pgui);
+		runPlanner();
+		String[] iList = pgui.initialTextArea.getText().split("\n");
+		 for(int i=0; i<iList.length; i++){
+			 initialState.add(iList[i]);
+		 }
+		 
+		 createInitialState(state);
+			
+		 Show s = new Show(this);
+		 ta = s.moveText;
+		 ta.setText(pgui.writeBuffer(move));
 	}
 	
 	
 	public void run(){
 
+<<<<<<< Updated upstream
 		runPlanner();
 		
+=======
+>>>>>>> Stashed changes
 		try{
-			move(p.process);
+			 move(p.process);
 		}
 		catch(Exception e){
 			System.out.println(e);
@@ -185,6 +232,7 @@ class Runner extends Thread{
 	public void runPlanner(){
 		p.startWithGUI();
 
+		/*
 		SwingUtilities.invokeLater(new Runnable(){
 				public void run(){
 					ImageIcon icon = new ImageIcon("tmp/simple"+pgui.counter+".png");
@@ -192,22 +240,23 @@ class Runner extends Thread{
 					SwingUtilities.updateComponentTreeUI(pgui.frame);
 				}
 		});
+		*/
+		String s = "";
+		for(int i=0; i<p.process.size(); i++){
+			s += Integer.toString(i+1)+":"+p.process.get(i) + "\n";
+		}
+		
+		pgui.planTextArea.setText(s);
 	}
 	
 	
 	public void move(ArrayList<String> process){
-		HashMap<String,Integer> state = new HashMap<String,Integer>();
-		state.put("A", 1);
-		state.put("B", 2);
-		state.put("C", 3);
-		state.put("1", 1);
-		state.put("2", 1);
-		state.put("3", 1);
 
 		String blank = "　　　　　";
 		String stick = "　　／　　";
 		String hand = "／／／／／";
 
+<<<<<<< Updated upstream
 		ArrayList<String> move = new ArrayList<String>();
 		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
 		move.add("　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　　");
@@ -233,6 +282,15 @@ class Runner extends Thread{
 		
 		pgui.moveTextArea.setText(pgui.writeBuffer(move));
 		
+=======
+		//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+		//ta.setText(pgui.writeBuffer(move));
+		
+		int c,n,d;
+		StringBuilder sb;
+
+
+>>>>>>> Stashed changes
 		for(int i=0; i<process.size(); i++){
 			pgui.opeTextArea.setText((i+1)+":"+process.get(i));
 			String ope = process.get(i);
@@ -240,10 +298,25 @@ class Runner extends Thread{
 			
 			if(ope.contains("Place")){
 				unifier.unify(ope, "Place ?x on ?y");
+				c = state.get((unifier.vars.get("?y")));
+				int[] num = new int[size];
+				
+				for(int j=0; j<size; j++){
+					num[j] = 0;
+				}
+				
+				for(int j=0; j<c-1; j++){
+					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
+						num[k]++;
+					}
+				}
+				
 				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
 				int yRen = 5+10*(state.get(unifier.vars.get("?y"))-1);
-				int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?y")))));
+				int Col = 5*(size+1-state.get(Integer.toString(state.get(unifier.vars.get("?y")))));
 				int len = Math.abs(yRen-xRen);
+				
+				//横移動
 				for(int j=0; j<len; j++){
 					if(yRen>xRen){
 						for(int k=0; k<8; k++){
@@ -256,122 +329,302 @@ class Runner extends Thread{
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
+<<<<<<< Updated upstream
 				
+=======
+
+				//縦移動
+>>>>>>> Stashed changes
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
-						move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
-						StringBuilder sb = new StringBuilder(move.get(k+1));
-						move.set(k+1,sb.insert(yRen,move.get(k).substring(yRen,yRen+5)).toString());
+						n = k-1;
+						if(n%5==0 && n!=0){
+							d = yRen+num[size-n/5];
+						}
+						else{
+							d = yRen;
+						}
+						if(k+1!=j-2){
+							move.set(k+1,move.get(k+1).substring(0,d)+move.get(k+1).substring(d+5));
+						}
+						else{
+							move.set(k+1,move.get(k+1).substring(0,d)+move.get(k+1).substring(d+6));
+						}
+						sb = new StringBuilder(move.get(k+1));
+						n--;
+
+						if(k!=j-2){
+							if(n%5==0 && n!=0){
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen+num[size-n/5],yRen+num[size-n/5]+5)).toString());
+							}
+							else{
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen,yRen+5)).toString());
+							}
+						}
+						else{
+							if(n%5==0 && n!=0){
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen+num[size-n/5],yRen+num[size-n/5]+6)).toString());
+							}
+							else{
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen,yRen+6)).toString());
+							}
+						}
 						if(k==0){
 							sb = new StringBuilder(move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
 							move.set(k,sb.insert(yRen,stick).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
-						move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
-						StringBuilder sb = new StringBuilder(move.get(k));
-						move.set(k, sb.insert(yRen,move.get(k+1).substring(yRen,yRen+5)).toString());
+						n = k-2;
+						if(n%5==0 && n!=0){
+							d = yRen+num[size-n/5];
+						}
+						else{
+							d = yRen;
+						}
+						move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
+						sb = new StringBuilder(move.get(k));
+						n++;
+						if(n%5==0 && n!=0){
+							move.set(k, sb.insert(d,move.get(k+1).substring(yRen+num[size-n/5],yRen+num[size-n/5]+5)).toString());
+						}
+						else{
+							move.set(k, sb.insert(d,move.get(k+1).substring(yRen,yRen+5)).toString());
+						}
+						n--;
 						if(k==j-1){
-							move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+							move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
 							sb = new StringBuilder(move.get(k));
-							move.set(k,sb.insert(yRen,blank).toString());
+							move.set(k,sb.insert(d,blank).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				state.put(unifier.vars.get("?x"), state.get(unifier.vars.get("?y")));
-				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
+				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-size-1)+1);
 			}
 			else if(ope.contains("remove")){
 				unifier.unify(ope, "remove ?x from on top ?y");
+				c = state.get(unifier.vars.get("?x"));
+				int[] num = new int[size];
+				
+				for(int j=0; j<size; j++){
+					num[j] = 0;
+				}
+				
+				for(int j=0; j<c-1; j++){
+					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
+						num[k]++;
+					}
+				}
 				int Ren = 5+10*(state.get(unifier.vars.get("?x"))-1);
-				int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
+				int Col = 5*(size+1-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
 				for(int j=0; j<Col; j++){
 					for(int k=j; k>=0; k--){
-						move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
-						StringBuilder sb = new StringBuilder(move.get(k));
-						if(k!=j){
-							move.set(k,sb.insert(Ren,stick).toString());
+						n = k-2;
+						if(n%5==0 && n!=0){
+							d = Ren+num[size-n/5];
 						}
 						else{
-							move.set(k,sb.insert(Ren,hand).toString());
+							d = Ren;
+						}
+						move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
+						sb = new StringBuilder(move.get(k));
+						if(k!=j){
+							move.set(k,sb.insert(d,stick).toString());
+						}
+						else{
+							move.set(k,sb.insert(d,hand).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
-						move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
-						StringBuilder sb = new StringBuilder(move.get(k-1));
-						move.set(k-1, sb.insert(Ren,move.get(k).substring(Ren,Ren+5)).toString());
+						n = k-3;
+						if(n%5==0 && n!=0){
+							d = Ren+num[size-n/5];
+						}
+						else{
+							d = Ren;
+						}
+						
+						if(k != j+6){
+							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+5));
+						}
+						else{
+							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+6));
+						}
+						sb = new StringBuilder(move.get(k-1));
+						n++;
+						
+						if(k != j+5){
+							if(n%5==0 && n!=0){
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren+num[size-n/5],Ren+num[size-n/5]+5)).toString());
+							}
+							else{
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren,Ren+5)).toString());
+							}
+						}
+						else{
+							if(n%5==0 && n!=0){
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren+num[size-n/5],Ren+num[size-n/5]+6)).toString());
+							}
+							else{
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren,Ren+6)).toString());
+							}
+						}
 						if(k==j+7){
-							move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+							n=k-2;
+							if(n%5==0 && n!=0){
+								d = Ren+num[size-n/5];
+							}
+							else{
+								d = Ren;
+							}
+							move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
 							sb = new StringBuilder(move.get(k));
-							move.set(k,sb.insert(Ren,blank).toString());
+							move.set(k,sb.insert(d,blank).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
-				state.put(Integer.toString(state.get(unifier.vars.get("?y"))),-1*(Col/5-4)-1);
+				state.put(Integer.toString(state.get(unifier.vars.get("?y"))),-1*(Col/5-size-1)-1);
 			}
 			else if(ope.contains("pick")){
 				unifier.unify(ope, "pick up ?x from the table");
+				c = state.get((unifier.vars.get("?x")));
+				int[] num = new int[size];
+				
+				for(int j=0; j<size; j++){
+					num[j] = 0;
+				}
+				
+				for(int j=0; j<c-1; j++){
+					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
+						num[k]++;
+					}
+				}
+
 				int Ren = 5+10*(state.get(unifier.vars.get("?x"))-1);
-				int Col = 5*(4-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
+				int Col = 5*(size+1-state.get(Integer.toString(state.get(unifier.vars.get("?x")))));
 				for(int j=0; j<Col; j++){
 					for(int k=j; k>=0; k--){
-						move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
-						StringBuilder sb = new StringBuilder(move.get(k));
-						if(k!=j){
-							move.set(k,sb.insert(Ren,stick).toString());
+						n = k-2;
+						if(n%5==0 && n!=0){
+							d = Ren+num[size-n/5];
 						}
 						else{
-							move.set(k,sb.insert(Ren,hand).toString());
+							d = Ren;
+						}
+						move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
+						sb = new StringBuilder(move.get(k));
+						if(k!=j){
+							move.set(k,sb.insert(d,stick).toString());
+						}
+						else{
+							move.set(k,sb.insert(d,hand).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				for(int j=Col-3; j>0; j--){
 					for(int k=1; k<j+8; k++){
-						move.set(k-1,move.get(k-1).substring(0,Ren)+move.get(k-1).substring(Ren+5));
-						StringBuilder sb = new StringBuilder(move.get(k-1));
-						move.set(k-1, sb.insert(Ren,move.get(k).substring(Ren,Ren+5)).toString());
+						n = k-3;
+						if(n%5==0 && n!=0){
+							d = Ren+num[size-n/5];
+						}
+						else{
+							d = Ren;
+						}
+						
+						if(k != j+6){
+							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+5));
+						}
+						else{
+							move.set(k-1,move.get(k-1).substring(0,d)+move.get(k-1).substring(d+6));
+						}
+						sb = new StringBuilder(move.get(k-1));
+						n++;
+						if(k != j+5){
+							if(n%5==0 && n!=0){
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren+num[size-n/5],Ren+num[size-n/5]+5)).toString());
+							}
+							else{
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren,Ren+5)).toString());
+							}
+						}
+						else{
+							if(n%5==0 && n!=0){
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren+num[size-n/5],Ren+num[size-n/5]+6)).toString());
+							}
+							else{
+								move.set(k-1, sb.insert(d,move.get(k).substring(Ren,Ren+6)).toString());
+							}
+						}
 						if(k==j+7){
-							move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
-							sb = new StringBuilder(move.get(k));
-							move.set(k,sb.insert(Ren,blank).toString());
+							n=k-2;
+							if(n%5==0 && n!=0){
+								move.set(k,move.get(k).substring(0,Ren+num[size-n/5])+move.get(k).substring(Ren+num[size-n/5]+5));
+								sb = new StringBuilder(move.get(k));
+								move.set(k,sb.insert(Ren+num[size-n/5],blank).toString());
+							}
+							else{
+								move.set(k,move.get(k).substring(0,Ren)+move.get(k).substring(Ren+5));
+								sb = new StringBuilder(move.get(k));
+								move.set(k,sb.insert(Ren,blank).toString());
+							}
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
-				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)-1);
+				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-size-1)-1);
 			}
 			else if(ope.contains("put")){
 				unifier.unify(ope, "put ?x down on the table");
-				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
-				int yRen;
-				int Col = 20;
-				switch(unifier.vars.get("?x")){
-					case "A": yRen = 5; break;
-					case "B": yRen = 15; break;
-					default : yRen = 25;
+				c = alphToInt(unifier.vars.get("?x"));
+				int[] num = new int[size];
+				
+				for(int j=0; j<size; j++){
+					num[j] = 0;
 				}
 				
+				for(int j=0; j<c-1; j++){
+					for(int k=0; k<state.get(Integer.toString(j+1)); k++){
+						num[k]++;
+					}
+				}
+<<<<<<< Updated upstream
+				
+=======
+
+				int xRen = 5+10*(state.get(unifier.vars.get("?x"))-1);
+				int yRen = 10*alphToInt(unifier.vars.get("?x"))-5;
+				int Col = 5*(size+1);
+
+>>>>>>> Stashed changes
 				int len = Math.abs(yRen-xRen);
 
 				for(int j=0; j<len; j++){
@@ -386,42 +639,280 @@ class Runner extends Thread{
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				for(int j=7; j<Col-1; j++){
 					for(int k=j; k>=0; k--){
-						move.set(k+1,move.get(k+1).substring(0,yRen)+move.get(k+1).substring(yRen+5));
-						StringBuilder sb = new StringBuilder(move.get(k+1));
-						move.set(k+1,sb.insert(yRen,move.get(k).substring(yRen,yRen+5)).toString());
+						n = k-1;
+						if(n%5==0 && n!=0){
+							d = yRen+num[size-n/5];
+						}
+						else{
+							d = yRen;
+						}
+						if(k+1!=j-2){
+							move.set(k+1,move.get(k+1).substring(0,d)+move.get(k+1).substring(d+5));
+						}
+						else{
+							move.set(k+1,move.get(k+1).substring(0,d)+move.get(k+1).substring(d+6));
+						}
+						sb = new StringBuilder(move.get(k+1));
+						n--;
+
+						if(k!=j-2){
+							if(n%5==0 && n!=0){
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen+num[size-n/5],yRen+num[size-n/5]+5)).toString());
+							}
+							else{
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen,yRen+5)).toString());
+							}
+						}
+						else{
+							if(n%5==0 && n!=0){
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen+num[size-n/5],yRen+num[size-n/5]+6)).toString());
+							}
+							else{
+								move.set(k+1,sb.insert(d,move.get(k).substring(yRen,yRen+6)).toString());
+							}
+						}
 						if(k==0){
 							sb = new StringBuilder(move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
 							move.set(k,sb.insert(yRen,stick).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
 				
 				for(int j=Col-5; j>0; j--){
 					for(int k=0; k<j; k++){
-						move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
-						StringBuilder sb = new StringBuilder(move.get(k));
-						move.set(k, sb.insert(yRen,move.get(k+1).substring(yRen,yRen+5)).toString());
+						n = k-2;
+						if(n%5==0 && n!=0){
+							d = yRen+num[size-n/5];
+						}
+						else{
+							d = yRen;
+						}
+						move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
+						sb = new StringBuilder(move.get(k));
+						n++;
+						if(n%5==0 && n!=0){
+							move.set(k, sb.insert(d,move.get(k+1).substring(yRen+num[size-n/5],yRen+num[size-n/5]+5)).toString());
+						}
+						else{
+							move.set(k, sb.insert(d,move.get(k+1).substring(yRen,yRen+5)).toString());
+						}
+						n--;
 						if(k==j-1){
-							move.set(k,move.get(k).substring(0,yRen)+move.get(k).substring(yRen+5));
+							move.set(k,move.get(k).substring(0,d)+move.get(k).substring(d+5));
 							sb = new StringBuilder(move.get(k));
-							move.set(k,sb.insert(yRen,blank).toString());
+							move.set(k,sb.insert(d,blank).toString());
 						}
 					}
 					sleep();
-					pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					//pgui.moveTextArea.setText(pgui.writeBuffer(move));
+					ta.setText(pgui.writeBuffer(move));
 				}
+
+				state.put(unifier.vars.get("?x"), alphToInt(unifier.vars.get("?x")));
+				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-size-1)+1);
+			}
+		}
+
+	}
+	
+	public void createInitialState(HashMap<String,Integer>state){
+		_Unifier unifier = new _Unifier();
+
+		for(int i=0; i<initialState.size(); i++){
+			if(unifier.unify(initialState.get(i), "ontable ?x")){
+				size++;
+			}
+			else if(unifier.unify(initialState.get(i), "?x on ?y")){
+				size++;
+			}
+			unifier = new _Unifier();
+		}
+		
+		for(int i=0; i<size; i++){
+			state.put(Integer.toString(i+1), 0);
+		}
+
+		String wide = "";
+		String yuka = "";
+		for(int i=0; i<5*(2*size+1)+size; i++){
+			wide += "　";
+			yuka += "■■";
+		}
+		
+		for(int i=0; i<5*(size+1); i++){
+			move.add(wide);
+		}
+		move.add(yuka);
+
+		String alph;
+		int location;
+		_Unifier unifier2 = new _Unifier();
+		for(int i=0; i<initialState.size(); i++){
+			if(unifier.unify(initialState.get(i), "ontable ?x")){
+				alph = unifier.vars.get("?x");
+				location = alphToInt(unifier.vars.get("?x"));
+				state.put(alph, location);
+				state.put(Integer.toString(location), 1);
+				for(int j=0; j<initialState.size(); j++){
+					if(unifier2.unify(initialState.get(j), alph+" is ?x")){
+						String shape = unifier2.vars.get("?x");
+						draw(alph,state,shape);
+						break;
+					}
+					unifier2 = new _Unifier();
+				}
+<<<<<<< Updated upstream
 				
 				state.put(unifier.vars.get("?x"), (yRen-5)/10);
 				state.put(Integer.toString(state.get(unifier.vars.get("?x"))),-1*(Col/5-4)+1);
+=======
+				build(unifier.vars,state);
+			}
+			unifier = new _Unifier();
+		}
+	}
+	
+	public void build(HashMap<String,String> vars, HashMap<String,Integer> state){
+
+		_Unifier unifier1 = new _Unifier();
+		_Unifier unifier2 = new _Unifier();
+		String alph = vars.get("?x");
+		int location;
+		
+		for(int i=0; i<initialState.size(); i++){
+			if(unifier1.unify(initialState.get(i), "?x on "+alph)){
+				location = state.get(alph);
+				alph = unifier1.vars.get("?x");
+				state.put(alph, location);
+				state.put(Integer.toString(location), state.get(Integer.toString(location))+1);
+				i = -1;
+				for(int j=0; j<initialState.size(); j++){
+					if(unifier2.unify(initialState.get(j), alph+" is ?x")){
+						String shape = unifier2.vars.get("?x");
+						draw(alph,state,shape);
+						break;
+					}
+					unifier2 = new _Unifier();
+				}
+			}
+			unifier1 = new _Unifier();
+
+		}
+	}
+	
+	public int alphToInt(String alph){
+		char[] c = alph.toCharArray();
+		return c[0]-64;
+	}
+	
+	public void draw(String alph, HashMap<String,Integer>state, String shape){
+		int x = state.get(alph);
+		int y = state.get(Integer.toString(state.get(alph)));
+		int Ren = 10*(x-1)+5;
+		int Col = 5*(size+1-y);
+		int n=0;
+		
+		for(int i=0; i<5; i++){
+			if(i!=2){
+				move.set(Col+i, move.get(Col+i).substring(0,Ren)+move.get(Col+i).substring(Ren+5));
+			}
+			else{
+				int c = state.get(alph);
+				
+				for(int j=1; j<c; j++){
+					if(state.get(Integer.toString(j))>=state.get(Integer.toString(c))){
+						n++;
+					}
+				}
+				move.set(Col+i, move.get(Col+i).substring(0,Ren+n)+move.get(Col+i).substring(Ren+n+6));
 			}
 		}
+		
+		ArrayList<String> shapeList = shapeList(shape,alph); 
+		for(int i=0; i<5; i++){
+			StringBuilder sb = new StringBuilder(move.get(Col+i));
+			if(i!=2){
+				move.set(Col+i,sb.insert(Ren,shapeList.get(i)).toString());
+>>>>>>> Stashed changes
+			}
+			else{
+				int c = state.get(alph);
+				String s="";
+				for(int j=c+1; j<size; j++){
+					if(state.get(Integer.toString(j)) >= state.get(Integer.toString(c))){
+						s += "　";
+					}
+				}
+				move.set(Col+i,sb.insert(Ren+n,shapeList.get(i)+s).toString());
+			}
+		}
+		
+	}
+	
+	public String largeChar(String alph){
+		switch(alph){
+		case "A"   : return  "Ａ" ;
+        case "B"   : return  "Ｂ" ;
+        case "C"   : return  "Ｃ" ;
+        case "D"   : return  "Ｄ" ;
+        case "E"   : return  "Ｅ" ;
+        case "F"   : return  "Ｆ" ;
+        case "G"   : return  "Ｇ" ;
+        case "H"   : return  "Ｈ" ;
+        case "I"   : return  "Ｉ" ;
+        case "J"   : return  "Ｊ" ;
+        case "K"   : return  "Ｋ" ;
+        case "L"   : return  "Ｌ" ;
+        case "M"   : return  "Ｍ" ;
+        case "N"   : return  "Ｎ" ;
+        case "O"   : return  "Ｏ" ;
+        case "P"   : return  "Ｐ" ;
+        case "Q"   : return  "Ｑ" ;
+        case "R"   : return  "Ｒ" ;
+        case "S"   : return  "Ｓ" ;
+        case "T"   : return  "Ｔ" ;
+        case "U"   : return  "Ｕ" ;
+        case "V"   : return  "Ｖ" ;
+        case "W"   : return  "Ｗ" ;
+        case "X"   : return  "Ｘ" ;
+        case "Y"   : return  "Ｙ" ;
+        case "Z"   : return  "Ｚ" ;
+        default : return "error"; 
+		}
+	}
+	
+	public ArrayList<String> shapeList(String shape, String alph){
+		ArrayList<String> shapeList = new ArrayList<String>();
+		
+		switch(shape){
+		case "square":shapeList.add("＿＿＿＿＿");
+						shapeList.add("＿　　　＿");
+						shapeList.add("＿　"+largeChar(alph)+" 　＿");
+						shapeList.add("＿　　　＿");
+						shapeList.add("＿＿＿＿＿"); break;
+
+		case "circle":shapeList.add("／￣￣￣＼");
+						shapeList.add("＿　　　＿");
+						shapeList.add("＿　"+largeChar(alph)+" 　＿");
+						shapeList.add("＿　　　＿");
+						shapeList.add("＼＿＿＿／"); break;
+
+		case "triangle":shapeList.add("　／￣＼　");
+						  shapeList.add("　―　―　");
+						  shapeList.add("／　"+largeChar(alph)+" 　＼");
+						  shapeList.add("＿　　　＿");
+						  shapeList.add("＿＿＿＿＿"); break;
+		}
+		return shapeList;
 	}
 	
 	public void sleep(){
