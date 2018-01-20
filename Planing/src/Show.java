@@ -14,6 +14,8 @@ public class Show implements ActionListener{
 	JLabel opeLabel;
 	JButton start;
 	JTextArea moveText,opeText;
+	
+	boolean flag=true;
 
 	Show(Runner runner){
 		this.runner = runner;
@@ -49,7 +51,10 @@ public class Show implements ActionListener{
 		JButton button = (JButton)event.getSource();
 		
 		if(button == start){
-			runner.start();
+			if(flag){
+				runner.start();
+			}
+			flag = false;
 		}
 	}
 

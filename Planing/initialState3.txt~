@@ -1,0 +1,8 @@
+clear B
+B on A
+A on C
+ontable C
+handEmpty
+A is square
+B is circle
+C is triangle

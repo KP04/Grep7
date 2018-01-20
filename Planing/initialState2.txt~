@@ -1,0 +1,9 @@
+clear B
+clear C
+ontable A
+ontable C
+B on A
+handEmpty
+A is square
+B is square
+C is square

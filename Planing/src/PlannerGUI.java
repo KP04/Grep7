@@ -39,7 +39,7 @@ public class PlannerGUI implements ActionListener {
 		fileNameLabel1.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel1.setPreferredSize(new Dimension(500,32));
 		fileNameLabel1.setBounds(0,0,500,32);
-		fileNameTextArea1 = new JTextArea("initialState.data");
+		fileNameTextArea1 = new JTextArea("initialState.txt");
 		fileNameTextArea1.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameTextArea1.setPreferredSize(new Dimension(260,32));
 		fileNameTextArea1.setBounds(0,32,260,32);
@@ -48,11 +48,11 @@ public class PlannerGUI implements ActionListener {
 		initialScrollPane.setPreferredSize(new Dimension(260,200));
 		initialScrollPane.setBounds(0,64,260,200);
 
-		fileNameLabel2 = new JLabel("Goal Filename:");
+		fileNameLabel2 = new JLabel("Goal State Filename:");
 		fileNameLabel2.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameLabel2.setPreferredSize(new Dimension(500,32));
 		fileNameLabel2.setBounds(280,0,500,32);
-		fileNameTextArea2 = new JTextArea("goalState.data");
+		fileNameTextArea2 = new JTextArea("goalState.txt");
 		fileNameTextArea2.setFont(new Font("Arial", Font.PLAIN, 25));
 		fileNameTextArea2.setPreferredSize(new Dimension(260,32));
 		fileNameTextArea2.setBounds(280,32,260,32);
